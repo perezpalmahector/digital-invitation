@@ -1,0 +1,30 @@
+
+[
+  {
+    "id": "FAM-001",
+    "familia": "Familia Pérez Palma1",
+    "adultos": 4,
+    "ninos": 0,
+    "telefono": "7711803196",
+    "mensajeFamilia": "Querida familia Pérez Palma, nos encantaría contar con su presencia en este día tan especial para Mary. Será una alegría compartir esta celebración con ustedes.",
+    "estado": "pendiente"
+  },
+  {
+    "id": "FAM-002",
+    "familia": "Familia Hernández",
+    "adultos": 2,
+    "ninos": 2,
+    "telefono": "7712345678",
+    "mensajeFamilia": "Querida familia Hernández, queremos invitarlos a celebrar los XVIII años de Mary. Esperamos compartir con ustedes una tarde llena de alegría y momentos inolvidables.",
+    "estado": "enviada"
+  },
+  {
+    "id": "FAM-003",
+    "familia": "Familia Ramírez",
+    "adultos": 2,
+    "ninos": 1,
+    "telefono": "7713456789",
+    "mensajeFamilia": "Con mucho cariño, Mary y su familia los invitan a formar parte de esta celebración tan importante. Su presencia será muy especial.",
+    "estado": "confirmada"
+  }
+]
