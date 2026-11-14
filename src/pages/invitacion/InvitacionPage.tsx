@@ -3,6 +3,16 @@ import { ArrowLeft, Volume2, VolumeX } from "lucide-react";
 
 import SobreAnimado from "../../components/sobre/SobreAnimado";
 import Inicio from "../../components/invitacion/Inicio";
+import FechaBoleto from "../../components/invitacion/FechaBoleto";
+import MensajeEspecial from "../../components/invitacion/MensajeEspecial";
+import PadresPadrinos from "../../components/invitacion/PadresPadrinos";
+import CeremoniaFiesta from "../../components/invitacion/CeremoniaFiesta";
+import Itinerario from "../../components/invitacion/Itinerario";
+import CodigoVestimenta from "../../components/invitacion/CodigoVestimenta";
+import VideoRecuerdo from "../../components/invitacion/VideoRecuerdo";
+import Galeria from "../../components/invitacion/Galeria";
+import MesaRegalos from "../../components/invitacion/MesaRegalos";
+import Confirmacion from "../../components/invitacion/Confirmacion";
 
 import { obtenerFamiliaPorId } from "../../services/familias.service";
 import { invitacionConfig } from "../../config/invitacion.config";
@@ -15,7 +25,6 @@ const InvitacionPage = () => {
     const [error, setError] = useState("");
     const [invitacionAbierta, setInvitacionAbierta] = useState(false);
 
-    // Control de música
     const audioRef = useRef<HTMLAudioElement | null>(null);
     const [reproduciendo, setReproduciendo] = useState(false);
 
@@ -50,18 +59,13 @@ const InvitacionPage = () => {
         void cargarFamilia();
     }, []);
 
-    // Reproducir automáticamente cuando entran a Inicio
     useEffect(() => {
         if (!invitacionAbierta || !audioRef.current) return;
 
         audioRef.current
             .play()
-            .then(() => {
-                setReproduciendo(true);
-            })
-            .catch(() => {
-                setReproduciendo(false);
-            });
+            .then(() => setReproduciendo(true))
+            .catch(() => setReproduciendo(false));
     }, [invitacionAbierta]);
 
     const alternarAudio = () => {
@@ -123,14 +127,12 @@ const InvitacionPage = () => {
 
     return (
         <>
-            {/* Elemento de audio persistente */}
             <audio ref={audioRef} src="/music/audio.mp3" loop preload="auto" />
 
             {!invitacionAbierta ? (
                 <SobreAnimado
                     nombreFamilia={familia?.familia}
                     onAbrir={() => {
-                        // Aprovechamos el clic en el sello para desbloquear el autoplay en celulares
                         if (audioRef.current) {
                             audioRef.current
                                 .play()
@@ -142,7 +144,6 @@ const InvitacionPage = () => {
                 />
             ) : (
                 <main className="invitacion-main">
-                    {/* Botón fijo para regresar al sobre */}
                     <button
                         type="button"
                         onClick={manejarRegresarAlSobre}
@@ -154,14 +155,12 @@ const InvitacionPage = () => {
                         <span>Regresar al sobre</span>
                     </button>
 
-                    {/* Botón flotante fijo para reproducir / pausar música en toda la página */}
                     <button
                         type="button"
                         onClick={alternarAudio}
                         className={`btn-audio-flotante ${reproduciendo ? "btn-audio-flotante--activo" : ""
                             }`}
                         aria-label={reproduciendo ? "Pausar música" : "Reproducir música"}
-                        title={reproduciendo ? "Pausar música" : "Reproducir música"}
                     >
                         <span className="btn-audio-flotante__icono">
                             {reproduciendo ? (
@@ -181,7 +180,38 @@ const InvitacionPage = () => {
                         hora={evento.hora}
                     />
 
-                    {/* Aquí debajo puedes ir agregando tus demás secciones con scroll normal */}
+                    <FechaBoleto
+                        tituloEvento={general.titulo}
+                        nombreFestejada={general.nombre}
+                        fecha={evento.fecha}
+                        hora={evento.hora}
+                        nombreFamilia={familia?.familia}
+                        mensajeFamilia={familia?.mensajeFamilia}
+                        adultos={familia?.adultos}
+                        ninos={familia?.ninos}
+                    />
+
+                    <MensajeEspecial />
+
+                    <PadresPadrinos />
+
+                    <CeremoniaFiesta />
+
+                    <Itinerario />
+
+                    <CodigoVestimenta />
+
+                    <VideoRecuerdo />
+
+                    <Galeria />
+
+                    <MesaRegalos />
+
+                    <Confirmacion
+                        nombreFamilia={familia?.familia}
+                        adultos={familia?.adultos}
+                        ninos={familia?.ninos}
+                    />
                 </main>
             )}
         </>
