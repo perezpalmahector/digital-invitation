@@ -88,7 +88,7 @@ const Inicio = ({
             <div className="inicio-contenido">
                 <header className="inicio-encabezado">
                     <span className="inicio-etiqueta">
-                        CON LA BENDICIÓN DE DIOS Y DE NUESTROS PADRES
+                        CON LA BENDICIÓN DE DIOS Y DE MIS PADRES
                     </span>
                     <h1>{titulo}</h1>
                     <p className="inicio-presentacion">

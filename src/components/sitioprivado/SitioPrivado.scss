@@ -1,0 +1,101 @@
+$rosa-palo: #d59a9e;
+$dorado-champagne: #d4af37;
+$blanco-hueso: #f9f6f0;
+$crema-marfil: #efe6d5;
+
+.sitio-privado {
+  width: 100%;
+  min-height: 100vh;
+  min-height: 100svh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 20px 16px;
+  box-sizing: border-box;
+  background: radial-gradient(
+    circle at center,
+    $blanco-hueso 0%,
+    $crema-marfil 100%
+  );
+  text-align: center;
+
+  &__card {
+    width: 100%;
+    max-width: 440px;
+    padding: 36px 26px;
+    background: rgba(255, 255, 255, 0.85);
+    border: 1px solid rgba($dorado-champagne, 0.55);
+    border-radius: 22px;
+    box-shadow: 0 14px 34px rgba(100, 70, 70, 0.12);
+    backdrop-filter: blur(6px);
+  }
+
+  &__icono {
+    width: 62px;
+    height: 62px;
+    margin: 0 auto 16px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: white;
+    background: linear-gradient(135deg, $dorado-champagne, #b98b35);
+    border: 2px solid #f9e7a5;
+    border-radius: 50%;
+    box-shadow: 0 6px 16px rgba(180, 140, 50, 0.25);
+  }
+
+  &__etiqueta {
+    display: block;
+    color: #a98542;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 3px;
+    margin-bottom: 8px;
+  }
+
+  h1 {
+    color: #795860;
+    font-family: Georgia, serif;
+    font-size: clamp(26px, 5vw, 34px);
+    font-weight: 400;
+    margin: 0 0 4px;
+  }
+
+  &__subtitulo {
+    color: $rosa-palo;
+    font-family: Georgia, serif;
+    font-size: 18px;
+    font-style: italic;
+    margin: 0;
+  }
+
+  &__separador {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    margin: 18px auto;
+    color: $dorado-champagne;
+
+    span:not(:nth-child(2)) {
+      width: 50px;
+      height: 1px;
+      background: $dorado-champagne;
+    }
+  }
+
+  &__mensaje {
+    color: #66545a;
+    font-size: 14px;
+    line-height: 1.65;
+    margin: 0 0 22px;
+  }
+
+  &__firma {
+    display: block;
+    color: $rosa-palo;
+    font-family: Georgia, serif;
+    font-size: 19px;
+    font-style: italic;
+  }
+}
