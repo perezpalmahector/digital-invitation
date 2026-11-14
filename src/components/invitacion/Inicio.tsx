@@ -68,12 +68,14 @@ const Inicio = ({
                     onClick={onRegresar}
                     aria-label="Volver al sobre"
                 >
-                    <ArrowLeft size={15} strokeWidth={2} />
+                    <span className="inicio-boton-regresar__icono">
+                        <ArrowLeft size={14} strokeWidth={2.2} />
+                    </span>
                     <span>Volver al sobre</span>
                 </button>
             )}
 
-            {/* Foto protagonista casi a pantalla completa */}
+            {/* Foto protagonista */}
             <div className="inicio-foto-hero">
                 <div className="inicio-marco">
                     <img
@@ -84,22 +86,25 @@ const Inicio = ({
                 </div>
             </div>
 
-            {/* Contenido superpuesto en móvil / columna derecha en escritorio */}
+            {/* Contenido ordenado */}
             <div className="inicio-contenido">
                 <header className="inicio-encabezado">
                     <span className="inicio-etiqueta">
                         CON LA BENDICIÓN DE DIOS Y DE MIS PADRES
                     </span>
-                    <h1>{titulo}</h1>
+
                     <p className="inicio-presentacion">
                         Tenemos el honor de invitarte a celebrar
                     </p>
+
+                    <h1>{titulo}</h1>
+
+                    <h2 className="inicio-nombre">{nombre}</h2>
+
+                    <p className="inicio-nombre-completo">{nombreCompleto}</p>
                 </header>
 
                 <div className="inicio-tarjeta-datos">
-                    <h2 className="inicio-nombre">{nombre}</h2>
-                    <p className="inicio-nombre-completo">{nombreCompleto}</p>
-
                     <div className="inicio-separador">
                         <span />
                         <span className="inicio-diamante">✧</span>
