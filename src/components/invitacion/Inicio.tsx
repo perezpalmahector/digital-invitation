@@ -1,5 +1,4 @@
 import { useEffect, useState } from "react";
-import { ArrowLeft } from "lucide-react";
 import "./Inicio.scss";
 
 interface InicioProps {
@@ -8,7 +7,6 @@ interface InicioProps {
     titulo: string;
     fecha: string;
     hora: string;
-    onRegresar?: () => void;
 }
 
 interface TiempoRestante {
@@ -36,7 +34,6 @@ const Inicio = ({
     titulo,
     fecha,
     hora,
-    onRegresar,
 }: InicioProps) => {
     const [tiempo, setTiempo] = useState<TiempoRestante>(() =>
         calcularTiempo(fecha, hora)
@@ -61,20 +58,6 @@ const Inicio = ({
 
     return (
         <section className="inicio-mary">
-            {onRegresar && (
-                <button
-                    type="button"
-                    className="inicio-boton-regresar"
-                    onClick={onRegresar}
-                    aria-label="Volver al sobre"
-                >
-                    <span className="inicio-boton-regresar__icono">
-                        <ArrowLeft size={14} strokeWidth={2.2} />
-                    </span>
-                    <span>Volver al sobre</span>
-                </button>
-            )}
-
             {/* Foto protagonista */}
             <div className="inicio-foto-hero">
                 <div className="inicio-marco">

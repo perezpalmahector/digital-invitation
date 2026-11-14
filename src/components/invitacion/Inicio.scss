@@ -9,19 +9,18 @@ $texto: #5c494f;
   width: 100%;
   margin: 0;
   padding: 0;
-  overflow-x: hidden;
 }
 
-/* Estilo del botón en InvitacionPage.tsx */
+/* Botón fijo superior izquierdo: Regresar al sobre */
 .btn-regresar-sobre {
   position: fixed;
-  top: 14px;
-  left: 16px;
-  z-index: 50;
+  top: 12px;
+  left: 14px;
+  z-index: 60;
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  padding: 6px 16px 6px 8px;
+  padding: 6px 15px 6px 8px;
   background: linear-gradient(
     180deg,
     rgba(255, 255, 255, 0.96) 0%,
@@ -42,8 +41,8 @@ $texto: #5c494f;
   transition: all 0.25s ease;
 
   &__icono {
-    width: 24px;
-    height: 24px;
+    width: 22px;
+    height: 22px;
     display: flex;
     justify-content: center;
     align-items: center;
@@ -62,7 +61,6 @@ $texto: #5c494f;
     color: #ffffff;
     border-color: #f9e7a5;
     transform: translateY(-1px);
-    box-shadow: 0 6px 20px rgba(180, 115, 120, 0.34);
 
     .btn-regresar-sobre__icono {
       background: #ffffff;
@@ -71,19 +69,86 @@ $texto: #5c494f;
       transform: translateX(-2px);
     }
   }
+}
 
-  &:active {
-    transform: scale(0.97);
+/* Botón fijo superior derecho: Reproducir / Parar música */
+.btn-audio-flotante {
+  position: fixed;
+  top: 12px;
+  right: 14px;
+  z-index: 60;
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 6px 15px 6px 8px;
+  background: linear-gradient(
+    180deg,
+    rgba(255, 255, 255, 0.96) 0%,
+    rgba($blanco-hueso, 0.94) 100%
+  );
+  color: #6b4951;
+  border: 1px solid $dorado-champagne;
+  border-radius: 50px;
+  font-family: Georgia, serif;
+  font-size: 12px;
+  font-style: italic;
+  letter-spacing: 0.4px;
+  box-shadow:
+    0 4px 15px rgba(90, 60, 60, 0.16),
+    inset 0 0 0 2px rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(8px);
+  cursor: pointer;
+  transition: all 0.25s ease;
+
+  &__icono {
+    width: 22px;
+    height: 22px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border-radius: 50%;
+    background: linear-gradient(135deg, $dorado-champagne, #b98b35);
+    color: #ffffff;
+    box-shadow: 0 2px 6px rgba(180, 140, 50, 0.3);
+    transition: transform 0.25s ease;
+  }
+
+  &--activo .btn-audio-flotante__icono {
+    background: linear-gradient(135deg, $rosa-palo, #bd8287);
+    animation: pulsoMusica 1.8s infinite ease-in-out;
+  }
+
+  &:hover {
+    background: linear-gradient(135deg, $rosa-palo, #bd8287);
+    color: #ffffff;
+    border-color: #f9e7a5;
+    transform: translateY(-1px);
+
+    .btn-audio-flotante__icono {
+      background: #ffffff;
+      color: #b87378;
+    }
   }
 }
 
-/* Sección principal a pantalla completa sin huecos blancos */
+@keyframes pulsoMusica {
+  0%,
+  100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.1);
+  }
+}
+
+/* Sección Inicio fijada a toda la pantalla (0 huecos blancos a los lados) */
 .inicio-mary {
   position: fixed;
   inset: 0;
-  width: 100%;
+  width: 100vw;
   height: 100vh;
   height: 100svh;
+  z-index: 10;
   overflow: hidden;
   box-sizing: border-box;
   display: flex;
@@ -107,25 +172,25 @@ $texto: #5c494f;
   }
 }
 
-/* Foto protagonista (en móvil ocupa casi toda la pantalla) */
+/* Foto protagonista en móvil: empieza debajo del cuadro superior para no tapar la cara */
 .inicio-foto-hero {
   position: absolute;
   inset: 0;
   z-index: 1;
   display: flex;
   justify-content: center;
-  align-items: center;
-  padding: 48px 8px 8px;
+  align-items: flex-start;
+  padding: 158px 10px 10px;
   pointer-events: none;
 }
 
 .inicio-marco {
-  height: 93svh;
-  max-width: 94%;
-  padding: 6px;
-  background: rgba(255, 255, 255, 0.85);
-  border: 1px solid rgba($dorado-champagne, 0.8);
-  border-radius: 220px 220px 18px 18px;
+  height: calc(100svh - 170px);
+  max-width: 92%;
+  padding: 5px;
+  background: rgba(255, 255, 255, 0.88);
+  border: 1px solid rgba($dorado-champagne, 0.85);
+  border-radius: 200px 200px 18px 18px;
   box-shadow: 0 12px 32px rgba(80, 50, 50, 0.18);
 }
 
@@ -136,7 +201,7 @@ $texto: #5c494f;
   max-width: 100%;
   object-fit: cover;
   object-position: top center;
-  border-radius: 214px 214px 14px 14px;
+  border-radius: 195px 195px 14px 14px;
 }
 
 /* Contenido superpuesto en móvil */
@@ -145,76 +210,74 @@ $texto: #5c494f;
   z-index: 10;
   width: 100%;
   height: 100%;
-  padding: 48px 12px 12px;
+  padding: 46px 10px 10px;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
   align-items: center;
 }
 
-/* Encabezado superior con alto contraste en celular */
 .inicio-encabezado {
   width: 100%;
   max-width: 460px;
-  padding: 8px 14px 10px;
-  background: rgba($blanco-hueso, 0.92);
+  padding: 6px 12px 7px;
+  background: rgba($blanco-hueso, 0.94);
   border: 1px solid rgba($dorado-champagne, 0.65);
-  border-radius: 18px;
-  box-shadow: 0 6px 20px rgba(80, 50, 50, 0.14);
+  border-radius: 16px;
+  box-shadow: 0 6px 18px rgba(80, 50, 50, 0.13);
   backdrop-filter: blur(8px);
 }
 
 .inicio-etiqueta {
   display: block;
   color: #8f6924;
-  font-size: clamp(8.5px, 2vw, 10.5px);
+  font-size: clamp(8px, 1.9vw, 10px);
   font-weight: 700;
-  letter-spacing: 1.8px;
-  margin-bottom: 3px;
+  letter-spacing: 1.5px;
+  margin-bottom: 2px;
 }
 
 .inicio-presentacion {
   color: $texto;
   font-family: Georgia, serif;
-  font-size: clamp(12.5px, 2.6vw, 16px);
+  font-size: clamp(11.5px, 2.5vw, 15px);
   font-style: italic;
-  margin: 0 0 2px;
+  margin: 0 0 1px;
 }
 
 .inicio-mary h1 {
   color: #6b4951;
   font-family: Georgia, serif;
-  font-size: clamp(22px, 5vw, 38px);
+  font-size: clamp(20px, 4.6vw, 36px);
   font-weight: 400;
-  line-height: 1.08;
-  margin: 0 0 2px;
+  line-height: 1.05;
+  margin: 0 0 1px;
 }
 
 .inicio-nombre {
   color: #b87378;
   font-family: Georgia, serif;
-  font-size: clamp(28px, 6.2vw, 50px);
+  font-size: clamp(25px, 5.6vw, 48px);
   font-style: italic;
-  line-height: 1.02;
-  margin: 2px 0;
+  line-height: 1;
+  margin: 1px 0;
 }
 
 .inicio-nombre-completo {
   color: $texto;
-  font-size: clamp(10px, 2vw, 12px);
+  font-size: clamp(9.5px, 1.9vw, 12px);
   font-weight: 600;
-  letter-spacing: 1.3px;
+  letter-spacing: 1.1px;
   margin: 0;
 }
 
-/* Tarjeta inferior translúcida */
 .inicio-tarjeta-datos {
   width: 100%;
   max-width: 460px;
-  padding: 8px 14px 10px;
+  padding: 7px 12px 9px;
   background: rgba($blanco-hueso, 0.92);
   border: 1px solid rgba($dorado-champagne, 0.65);
-  border-radius: 20px;
+  border-radius: 18px;
   box-shadow: 0 10px 28px rgba(80, 50, 50, 0.15);
   backdrop-filter: blur(8px);
 }
@@ -224,58 +287,58 @@ $texto: #5c494f;
   align-items: center;
   justify-content: center;
   gap: 10px;
-  margin: 2px auto 5px;
+  margin: 1px auto 4px;
 }
 
 .inicio-separador span:not(.inicio-diamante) {
-  width: 48px;
+  width: 45px;
   height: 1px;
   background: $dorado-champagne;
 }
 
 .inicio-diamante {
   color: $dorado-champagne;
-  font-size: 15px;
+  font-size: 14px;
   line-height: 1;
 }
 
 .inicio-fecha > span {
   display: block;
   color: #8f6924;
-  font-size: 9px;
+  font-size: 8.5px;
   font-weight: 700;
-  letter-spacing: 2.2px;
+  letter-spacing: 2px;
 }
 
 .inicio-fecha h3 {
   color: #6b4951;
   font-family: Georgia, serif;
-  font-size: clamp(17px, 3.8vw, 24px);
-  margin: 2px 0;
+  font-size: clamp(16px, 3.6vw, 24px);
+  margin: 1px 0;
   text-transform: capitalize;
 }
 
 .inicio-fecha p {
   color: $texto;
-  font-size: 12.5px;
+  font-size: 12px;
   font-weight: 600;
   margin: 0;
 }
 
 .inicio-cuenta {
   width: 100%;
-  margin: 6px auto;
-  padding: 7px 10px;
+  margin: 5px auto;
+  padding: 6px 8px;
   background: rgba(255, 255, 255, 0.88);
   border: 1px solid rgba($dorado-champagne, 0.45);
-  border-radius: 14px;
+  border-radius: 13px;
 }
 
 .inicio-cuenta h3 {
   color: #6b4951;
   font-family: Georgia, serif;
-  font-size: clamp(13px, 2.8vw, 17px);
-  margin: 0 0 6px;
+  font-size: clamp(12.5px, 2.6vw, 17px);
+  margin: 0 0 5px;
 }
 
 .cuenta-grid {
@@ -288,37 +351,37 @@ $texto: #5c494f;
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 3px;
+  gap: 2px;
 }
 
 .cuenta-item strong {
   display: flex;
   justify-content: center;
   align-items: center;
-  width: clamp(42px, 11vw, 56px);
-  height: clamp(40px, 10vw, 54px);
+  width: clamp(40px, 10.5vw, 56px);
+  height: clamp(38px, 9.5vw, 54px);
   color: white;
   background: linear-gradient(135deg, $rosa-palo, #b87378);
   border: 1px solid rgba($rosa-rubor, 0.75);
-  border-radius: 12px;
-  font-size: clamp(16px, 3.8vw, 22px);
+  border-radius: 11px;
+  font-size: clamp(15px, 3.6vw, 22px);
   font-weight: 600;
   font-variant-numeric: tabular-nums;
 }
 
 .cuenta-item span {
   color: $texto;
-  font-size: 10px;
+  font-size: 9.5px;
   font-weight: 600;
 }
 
 .inicio-frase {
-  margin: 4px auto 0;
+  margin: 3px auto 0;
   color: #795860;
   font-family: Georgia, serif;
-  font-size: clamp(11px, 2.3vw, 14px);
+  font-size: clamp(10.5px, 2.2vw, 14px);
   font-style: italic;
-  line-height: 1.3;
+  line-height: 1.28;
 }
 
 /* Escritorio: fondo1.jpg a pantalla completa sin huecos blancos */
