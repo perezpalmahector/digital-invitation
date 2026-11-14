@@ -15,26 +15,39 @@ export interface FamiliaRecord {
   [key: string]: unknown;
 }
 
-// Usa carpeta temporal en Netlify o una carpeta local data/
-const DATA_DIR = process.env.NETLIFY
-  ? os.tmpdir()
-  : path.join(process.cwd(), "data");
-const FILE_PATH = path.join(DATA_DIR, "familias.json");
+const TMP_FILE = path.join(os.tmpdir(), "familias.json");
+const BUNDLED_FILE = path.join(process.cwd(), "data", "familias.json");
+const ACTIVE_FILE = process.env.NETLIFY ? TMP_FILE : BUNDLED_FILE;
 
 export const obtenerFamiliasDrive = async (): Promise<FamiliaRecord[]> => {
-  // 1. Si ya existe el archivo con cambios guardados, lo lee directo
+  // 1. Lee el archivo activo (/tmp/familias.json en Netlify o data/familias.json en local)
   try {
-    const contenidoLocal = await readFile(FILE_PATH, "utf-8");
-    const parsed = JSON.parse(contenidoLocal);
+    const contenido = await readFile(ACTIVE_FILE, "utf-8");
+    const parsed = JSON.parse(contenido);
     if (Array.isArray(parsed)) {
       return parsed as FamiliaRecord[];
     }
   } catch {
-    // Si aún no existe, continúa para descargarlo de Google Drive
+    // Si aún no existe en /tmp (primera ejecución en Netlify), continúa al paso 2
   }
 
-  // 2. Descarga tus familias iniciales desde tu Google Drive actual
-  const response = await fetch(googleDriveConfig.downloadUrl);
+  // 2. Lee el archivo base empaquetado en el deploy (data/familias.json)
+  try {
+    const baseData = await readFile(BUNDLED_FILE, "utf-8");
+    const parsed = JSON.parse(baseData);
+    if (Array.isArray(parsed)) {
+      await guardarFamiliasDrive(parsed as FamiliaRecord[]);
+      return parsed as FamiliaRecord[];
+    }
+  } catch {
+    // Si tampoco existe data/familias.json, intenta descargar de Drive como último recurso
+  }
+
+  // 3. Respaldo desde Google Drive
+  const response = await fetch(googleDriveConfig.downloadUrl, {
+    headers: { "User-Agent": "Mozilla/5.0" },
+  });
+
   if (!response.ok) {
     throw new Error(`Error Google Drive: ${response.status}`);
   }
@@ -61,6 +74,6 @@ export const obtenerFamiliasDrive = async (): Promise<FamiliaRecord[]> => {
 export const guardarFamiliasDrive = async (
   familias: FamiliaRecord[],
 ): Promise<void> => {
-  await mkdir(DATA_DIR, { recursive: true });
-  await writeFile(FILE_PATH, JSON.stringify(familias, null, 2), "utf-8");
+  await mkdir(path.dirname(ACTIVE_FILE), { recursive: true });
+  await writeFile(ACTIVE_FILE, JSON.stringify(familias, null, 2), "utf-8");
 };
