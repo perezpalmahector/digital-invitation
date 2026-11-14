@@ -17,10 +17,18 @@ export interface FamiliaRecord {
 
 const TMP_FILE = path.join(os.tmpdir(), "familias.json");
 const BUNDLED_FILE = path.join(process.cwd(), "data", "familias.json");
-const ACTIVE_FILE = process.env.NETLIFY ? TMP_FILE : BUNDLED_FILE;
+
+// En AWS Lambda / Netlify Functions siempre usa /tmp para escribir
+const ES_PRODUCCION = Boolean(
+  process.env.AWS_LAMBDA_FUNCTION_NAME ||
+  process.env.NETLIFY ||
+  process.env.LAMBDA_TASK_ROOT,
+);
+
+const ACTIVE_FILE = ES_PRODUCCION ? TMP_FILE : BUNDLED_FILE;
 
 export const obtenerFamiliasDrive = async (): Promise<FamiliaRecord[]> => {
-  // 1. Lee el archivo activo (/tmp/familias.json en Netlify o data/familias.json en local)
+  // 1. Lee el archivo activo (/tmp/familias.json en producción o data/familias.json en local)
   try {
     const contenido = await readFile(ACTIVE_FILE, "utf-8");
     const parsed = JSON.parse(contenido);
@@ -28,7 +36,7 @@ export const obtenerFamiliasDrive = async (): Promise<FamiliaRecord[]> => {
       return parsed as FamiliaRecord[];
     }
   } catch {
-    // Si aún no existe en /tmp (primera ejecución en Netlify), continúa al paso 2
+    // Si aún no existe en /tmp, continúa al paso 2
   }
 
   // 2. Lee el archivo base empaquetado en el deploy (data/familias.json)
@@ -40,7 +48,7 @@ export const obtenerFamiliasDrive = async (): Promise<FamiliaRecord[]> => {
       return parsed as FamiliaRecord[];
     }
   } catch {
-    // Si tampoco existe data/familias.json, intenta descargar de Drive como último recurso
+    // Continúa a Drive si no está empaquetado
   }
 
   // 3. Respaldo desde Google Drive
@@ -74,6 +82,14 @@ export const obtenerFamiliasDrive = async (): Promise<FamiliaRecord[]> => {
 export const guardarFamiliasDrive = async (
   familias: FamiliaRecord[],
 ): Promise<void> => {
-  await mkdir(path.dirname(ACTIVE_FILE), { recursive: true });
-  await writeFile(ACTIVE_FILE, JSON.stringify(familias, null, 2), "utf-8");
+  const jsonTexto = JSON.stringify(familias, null, 2);
+
+  try {
+    await mkdir(path.dirname(ACTIVE_FILE), { recursive: true });
+    await writeFile(ACTIVE_FILE, jsonTexto, "utf-8");
+  } catch {
+    // Si el sistema de archivos es de solo lectura, guarda en /tmp sin fallar
+    await mkdir(os.tmpdir(), { recursive: true });
+    await writeFile(TMP_FILE, jsonTexto, "utf-8");
+  }
 };
