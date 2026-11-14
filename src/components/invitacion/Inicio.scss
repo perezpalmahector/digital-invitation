@@ -489,3 +489,180 @@ $texto: #5c494f;
     padding: 14px 18px;
   }
 }
+
+@media (max-width: 819px) {
+  .btn-regresar-sobre,
+  .btn-audio-flotante {
+    top: 8px;
+    padding: 4px 11px 4px 6px;
+    font-size: 10.5px;
+  }
+
+  .btn-regresar-sobre {
+    left: 10px;
+  }
+  .btn-audio-flotante {
+    right: 10px;
+  }
+
+  /* Todo en un solo vistazo (100svh) con Foto 100% libre en medio */
+  .inicio-mary {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    align-items: center;
+    height: 100svh;
+    overflow: hidden;
+    padding: 44px 10px 8px;
+    gap: 6px;
+  }
+
+  .inicio-contenido {
+    display: contents;
+  }
+
+  /* 1. Encabezado compacto arriba */
+  .inicio-encabezado {
+    order: 1;
+    width: 100%;
+    max-width: 420px;
+    padding: 5px 10px 6px;
+    border-radius: 14px;
+    flex-shrink: 0;
+  }
+
+  /* Une "Con la bendición..." y "Tenemos el honor..." visualmente compactos */
+  .inicio-etiqueta {
+    font-size: 7.5px;
+    letter-spacing: 1px;
+    margin-bottom: 1px;
+  }
+
+  .inicio-presentacion {
+    font-size: 11px;
+    margin: 0;
+  }
+
+  .inicio-mary h1 {
+    font-size: 18px;
+    line-height: 1.05;
+    margin: 1px 0;
+  }
+
+  .inicio-nombre {
+    font-size: 23px;
+    line-height: 1;
+    margin: 1px 0;
+  }
+
+  .inicio-nombre-completo {
+    font-size: 9px;
+    letter-spacing: 0.8px;
+  }
+
+  /* 2. Foto grande y 100% despejada en el centro (ocupa todo el espacio sobrante) */
+  .inicio-foto-hero {
+    position: relative;
+    inset: auto;
+    order: 2;
+    flex: 1;
+    min-height: 0;
+    width: 100%;
+    padding: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+
+  .inicio-marco {
+    height: 100%;
+    max-height: 100%;
+    width: auto;
+    max-width: 88vw;
+    padding: 4px;
+    background: #ffffff;
+    border-radius: 180px 180px 14px 14px;
+  }
+
+  .inicio-imagen {
+    height: 100%;
+    width: auto;
+    max-width: 100%;
+    object-fit: cover;
+    object-position: top center;
+    border-radius: 176px 176px 10px 10px;
+  }
+
+  /* 3. Tarjeta inferior ultra compacta con Fecha y Hora en una sola línea */
+  .inicio-tarjeta-datos {
+    order: 3;
+    width: 100%;
+    max-width: 420px;
+    padding: 6px 10px 7px;
+    border-radius: 16px;
+    flex-shrink: 0;
+  }
+
+  .inicio-separador,
+  .inicio-fecha > span {
+    display: none;
+  }
+
+  /* Fecha y hora en una sola línea horizontal */
+  .inicio-fecha {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 4px;
+
+    h3 {
+      font-size: 13.5px;
+      margin: 0;
+    }
+
+    p {
+      font-size: 12px;
+      font-weight: 700;
+      color: #8f6924;
+      padding-left: 8px;
+      border-left: 1px solid $dorado-champagne;
+    }
+  }
+
+  .inicio-cuenta {
+    margin: 3px auto;
+    padding: 4px 6px;
+    border-radius: 10px;
+
+    h3 {
+      font-size: 11px;
+      margin: 0 0 3px;
+    }
+  }
+
+  .cuenta-grid {
+    gap: 5px;
+  }
+
+  .cuenta-item {
+    gap: 1px;
+
+    strong {
+      width: 34px;
+      height: 30px;
+      font-size: 13px;
+      border-radius: 8px;
+    }
+
+    span {
+      font-size: 8.5px;
+    }
+  }
+
+  .inicio-frase {
+    margin: 3px auto 0;
+    font-size: 9.5px;
+    line-height: 1.2;
+  }
+}

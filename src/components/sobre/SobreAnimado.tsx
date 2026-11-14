@@ -19,22 +19,25 @@ const SobreAnimado = ({ onAbrir, nombreFamilia }: SobreAnimadoProps) => {
         }, 1400);
     };
 
+    // Evita decir "Familia Familia López" si el nombre ya incluye la palabra "Familia"
+    const saludoFamilia = nombreFamilia
+        ? /^familia\b/i.test(nombreFamilia.trim())
+            ? nombreFamilia.trim()
+            : `Familia ${nombreFamilia.trim()}`
+        : null;
+
     return (
         <section
             className={`sobre-animado ${abriendo ? "sobre-animado--abriendo" : ""}`}
         >
             <div className="sobre-animado__contenido">
-                <span className="sobre-animado__etiqueta">
-                    UNA INVITACIÓN MUY ESPECIAL
-                </span>
-
-                <h1 className="sobre-animado__titulo">Tienes una invitación</h1>
-
-                {nombreFamilia && (
-                    <p className="sobre-animado__familia">
-                        Para la familia {nombreFamilia}
-                    </p>
+                {saludoFamilia && (
+                    <p className="sobre-animado__familia">{saludoFamilia}</p>
                 )}
+
+                <h1 className="sobre-animado__titulo">
+                    Tienes una invitación muy especial
+                </h1>
 
                 <div className="sobre-animado__envoltura">
                     <img
