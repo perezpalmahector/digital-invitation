@@ -1,48 +1,66 @@
+import { readFile, writeFile, mkdir } from "node:fs/promises";
+import path from "node:path";
+import os from "node:os";
 import { googleDriveConfig } from "../config/google-drive.config";
 
-export const obtenerFamiliasDrive = async (): Promise<unknown[]> => {
-  const response = await fetch(googleDriveConfig.downloadUrl);
+export interface FamiliaRecord {
+  id: string;
+  rowId?: number;
+  familia: string;
+  adultos: number;
+  ninos: number;
+  telefono: string;
+  estado: string;
+  mensajeFamilia: string;
+  [key: string]: unknown;
+}
 
+// Usa carpeta temporal en Netlify o una carpeta local data/
+const DATA_DIR = process.env.NETLIFY
+  ? os.tmpdir()
+  : path.join(process.cwd(), "data");
+const FILE_PATH = path.join(DATA_DIR, "familias.json");
+
+export const obtenerFamiliasDrive = async (): Promise<FamiliaRecord[]> => {
+  // 1. Si ya existe el archivo con cambios guardados, lo lee directo
+  try {
+    const contenidoLocal = await readFile(FILE_PATH, "utf-8");
+    const parsed = JSON.parse(contenidoLocal);
+    if (Array.isArray(parsed)) {
+      return parsed as FamiliaRecord[];
+    }
+  } catch {
+    // Si aún no existe, continúa para descargarlo de Google Drive
+  }
+
+  // 2. Descarga tus familias iniciales desde tu Google Drive actual
+  const response = await fetch(googleDriveConfig.downloadUrl);
   if (!response.ok) {
     throw new Error(`Error Google Drive: ${response.status}`);
   }
 
-  const contenido = await response.text();
+  const datos: unknown = await response.json();
+  const listaInicial = Array.isArray(datos)
+    ? datos
+    : datos &&
+        typeof datos === "object" &&
+        "data" in datos &&
+        Array.isArray((datos as { data: unknown }).data)
+      ? (datos as { data: FamiliaRecord[] }).data
+      : datos &&
+          typeof datos === "object" &&
+          "familias" in datos &&
+          Array.isArray((datos as { familias: unknown }).familias)
+        ? (datos as { familias: FamiliaRecord[] }).familias
+        : [];
 
-  let datos: unknown;
+  await guardarFamiliasDrive(listaInicial as FamiliaRecord[]);
+  return listaInicial as FamiliaRecord[];
+};
 
-  try {
-    datos = JSON.parse(contenido);
-  } catch {
-    throw new Error("El archivo de Google Drive no contiene JSON válido.");
-  }
-
-  // Caso 1: JSON directamente como arreglo
-  if (Array.isArray(datos)) {
-    return datos;
-  }
-
-  // Caso 2: JSON con propiedad data
-  if (
-    typeof datos === "object" &&
-    datos !== null &&
-    "data" in datos &&
-    Array.isArray(datos.data)
-  ) {
-    return datos.data;
-  }
-
-  // Caso 3: JSON con propiedad familias
-  if (
-    typeof datos === "object" &&
-    datos !== null &&
-    "familias" in datos &&
-    Array.isArray(datos.familias)
-  ) {
-    return datos.familias;
-  }
-
-  throw new Error(
-    "Estructura JSON incorrecta. Se esperaba un arreglo de familias.",
-  );
+export const guardarFamiliasDrive = async (
+  familias: FamiliaRecord[],
+): Promise<void> => {
+  await mkdir(DATA_DIR, { recursive: true });
+  await writeFile(FILE_PATH, JSON.stringify(familias, null, 2), "utf-8");
 };

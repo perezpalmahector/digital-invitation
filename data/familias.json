@@ -1,0 +1,22 @@
+[
+  {
+    "familia": "Familia Hernandez",
+    "adultos": 4,
+    "ninos": 0,
+    "telefono": "7711105080",
+    "mensajeFamilia": "Querida familia Hernandez, nos encantaría contar con su presencia en este día tan especial para Mary. Será una alegría compartir esta celebración con ustedes.",
+    "estado": "pendiente",
+    "rowId": 1794615705259556,
+    "id": "FAM-1794615705259556"
+  },
+  {
+    "familia": "Familia Pérez Palma",
+    "adultos": 4,
+    "ninos": 2,
+    "telefono": "7711803196",
+    "mensajeFamilia": "Querida familia Pérez Palma, nos encantaría contar con su presencia en este día tan especial para Mary. Será una alegría compartir esta celebración con ustedes.",
+    "estado": "pendiente",
+    "rowId": 1794615786574870,
+    "id": "FAM-1794615786574870"
+  }
+]
