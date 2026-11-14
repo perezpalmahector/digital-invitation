@@ -1,9 +1,37 @@
 import type { FamiliaInvitada } from "../types/config/familia.types";
 
-// const API_URL = "http://localhost:3001/api/familias";
 const API_URL = "/api/familias";
 
-export const obtenerFamilias = async (): Promise<FamiliaInvitada[]> => {
+export type FamiliaConRowId = FamiliaInvitada & {
+  rowId?: number;
+};
+
+export type NuevaFamiliaInput = Omit<FamiliaInvitada, "id"> & {
+  rowId?: number;
+};
+
+/**
+ * Genera un rowId numérico único de 16 dígitos (ej. 1794614400123842)
+ * seguro dentro de Number.MAX_SAFE_INTEGER.
+ */
+export const generarRowId = (): number => {
+  const timestamp = Date.now(); // 13 dígitos
+  const aleatorio = Math.floor(100 + Math.random() * 900); // 3 dígitos
+  return Number(`${timestamp}${aleatorio}`);
+};
+
+/**
+ * Genera el identificador textual para las URLs de invitación
+ * basado en el rowId numérico (ej. "FAM-1794614400123842").
+ */
+export const generarIdFamilia = (rowId: number = generarRowId()): string => {
+  return `FAM-${rowId}`;
+};
+
+// =========================================
+// CONSULTAR TODAS LAS FAMILIAS (GET)
+// =========================================
+export const obtenerFamilias = async (): Promise<FamiliaConRowId[]> => {
   const response = await fetch(API_URL);
 
   if (!response.ok) {
@@ -23,17 +51,102 @@ export const obtenerFamilias = async (): Promise<FamiliaInvitada[]> => {
     throw new Error("La respuesta de la API no contiene un arreglo válido.");
   }
 
-  return resultado.data as FamiliaInvitada[];
+  return resultado.data as FamiliaConRowId[];
 };
 
+// =========================================
+// CONSULTAR FAMILIA POR ID O ROWID
+// =========================================
 export const obtenerFamiliaPorId = async (
   id: string,
-): Promise<FamiliaInvitada | undefined> => {
+): Promise<FamiliaConRowId | undefined> => {
   const familias = await obtenerFamilias();
 
-  return familias.find((familia) => familia.id === id);
+  return familias.find(
+    (familia) =>
+      familia.id === id ||
+      (familia.rowId !== undefined && String(familia.rowId) === id),
+  );
 };
 
+// =========================================
+// INSERTAR NUEVA FAMILIA (POST)
+// =========================================
+export const crearFamilia = async (
+  datos: NuevaFamiliaInput,
+): Promise<FamiliaConRowId> => {
+  const rowId = datos.rowId ?? generarRowId();
+  const id = generarIdFamilia(rowId);
+
+  const nuevaFamilia: FamiliaConRowId = {
+    ...datos,
+    rowId,
+    id,
+  };
+
+  const response = await fetch(API_URL, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(nuevaFamilia),
+  });
+
+  const resultado = await response.json();
+
+  if (!response.ok || !resultado.success) {
+    throw new Error(
+      resultado.message || "No fue posible registrar la nueva familia.",
+    );
+  }
+
+  return resultado.data as FamiliaConRowId;
+};
+
+// =========================================
+// MODIFICAR FAMILIA EXISTENTE (PUT)
+// =========================================
+export const actualizarFamilia = async (
+  id: string,
+  datos: Partial<Omit<FamiliaConRowId, "id" | "rowId">>,
+): Promise<FamiliaConRowId> => {
+  const response = await fetch(`${API_URL}/${encodeURIComponent(id)}`, {
+    method: "PUT",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(datos),
+  });
+
+  const resultado = await response.json();
+
+  if (!response.ok || !resultado.success) {
+    throw new Error(
+      resultado.message || "No fue posible actualizar la familia.",
+    );
+  }
+
+  return resultado.data as FamiliaConRowId;
+};
+
+// =========================================
+// ELIMINAR FAMILIA (DELETE)
+// =========================================
+export const eliminarFamilia = async (id: string): Promise<void> => {
+  const response = await fetch(`${API_URL}/${encodeURIComponent(id)}`, {
+    method: "DELETE",
+  });
+
+  const resultado = await response.json();
+
+  if (!response.ok || !resultado.success) {
+    throw new Error(resultado.message || "No fue posible eliminar la familia.");
+  }
+};
+
+// =========================================
+// RESUMEN DE INVITADOS
+// =========================================
 export const obtenerResumenFamilias = async () => {
   const familias = await obtenerFamilias();
 

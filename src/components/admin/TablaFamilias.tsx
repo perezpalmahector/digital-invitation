@@ -5,6 +5,7 @@ import {
     useEffect,
     useCallback
 } from "react";
+import type { FormEvent } from "react";
 
 import {
     Search,
@@ -18,10 +19,18 @@ import {
     Clock,
     Send,
     RefreshCw,
-    X
+    X,
+    Plus,
+    Pencil,
+    Trash2
 } from "lucide-react";
 
-import { obtenerFamilias } from "../../services/familias.service";
+import {
+    actualizarFamilia,
+    crearFamilia,
+    eliminarFamilia,
+    obtenerFamilias
+} from "../../services/familias.service";
 
 import type {
     FamiliaInvitada,
@@ -47,6 +56,20 @@ const TablaFamilias = () => {
         useState<FamiliaInvitada | null>(null);
 
     const [mensajeCopiado, setMensajeCopiado] = useState("");
+    const [formularioAbierto, setFormularioAbierto] = useState(false);
+    const [familiaEnEdicion, setFamiliaEnEdicion] =
+        useState<FamiliaInvitada | null>(null);
+    const [guardando, setGuardando] = useState(false);
+    const [eliminandoId, setEliminandoId] = useState("");
+    const [errorOperacion, setErrorOperacion] = useState("");
+    const [formulario, setFormulario] = useState<Omit<FamiliaInvitada, "id">>({
+        familia: "",
+        adultos: 1,
+        ninos: 0,
+        telefono: "",
+        mensajeFamilia: "",
+        estado: "pendiente"
+    });
 
     // =========================================
     // CARGAR FAMILIAS DESDE API
@@ -78,6 +101,88 @@ const TablaFamilias = () => {
     useEffect(() => {
         void cargarFamilias();
     }, [cargarFamilias]);
+
+    const abrirFormularioNuevo = () => {
+        setFamiliaEnEdicion(null);
+        setFormulario({
+            familia: "",
+            adultos: 1,
+            ninos: 0,
+            telefono: "",
+            mensajeFamilia: "",
+            estado: "pendiente"
+        });
+        setErrorOperacion("");
+        setFormularioAbierto(true);
+    };
+
+    const abrirFormularioEdicion = (familia: FamiliaInvitada) => {
+        setFamiliaEnEdicion(familia);
+        setFormulario({
+            familia: familia.familia,
+            adultos: familia.adultos,
+            ninos: familia.ninos,
+            telefono: familia.telefono,
+            mensajeFamilia: familia.mensajeFamilia,
+            estado: familia.estado
+        });
+        setErrorOperacion("");
+        setFormularioAbierto(true);
+    };
+
+    const guardarFamilia = async (event: FormEvent<HTMLFormElement>) => {
+        event.preventDefault();
+        setGuardando(true);
+        setErrorOperacion("");
+
+        try {
+            if (familiaEnEdicion) {
+                await actualizarFamilia(familiaEnEdicion.id, formulario);
+            } else {
+                await crearFamilia(formulario);
+            }
+
+            setFormularioAbierto(false);
+            setFamiliaEnEdicion(null);
+            await cargarFamilias();
+        } catch (err) {
+            console.error("Error al guardar la familia:", err);
+            setErrorOperacion(
+                err instanceof Error
+                    ? err.message
+                    : "No fue posible guardar la familia."
+            );
+        } finally {
+            setGuardando(false);
+        }
+    };
+
+    const borrarFamilia = async (familia: FamiliaInvitada) => {
+        const confirmado = window.confirm(
+            `¿Seguro que deseas eliminar a ${familia.familia}? Esta acción no se puede deshacer.`
+        );
+
+        if (!confirmado) {
+            return;
+        }
+
+        setEliminandoId(familia.id);
+        setErrorOperacion("");
+
+        try {
+            await eliminarFamilia(familia.id);
+            await cargarFamilias();
+        } catch (err) {
+            console.error("Error al eliminar la familia:", err);
+            setErrorOperacion(
+                err instanceof Error
+                    ? err.message
+                    : "No fue posible eliminar la familia."
+            );
+        } finally {
+            setEliminandoId("");
+        }
+    };
 
     // =========================================
     // RESUMEN DE INVITADOS
@@ -246,9 +351,7 @@ Por favor, confirmen su asistencia.
             {/* ENCABEZADO */}
 
             <div className="familias-header mb-4">
-
                 <div className="familias-header-content">
-
                     <span className="familias-eyebrow">
                         <span className="familias-eyebrow-line"></span>
                         ADMINISTRACIÓN DE INVITADOS
@@ -266,24 +369,32 @@ Por favor, confirmen su asistencia.
                         Consulta invitados, comparte invitaciones y lleva
                         el control de las confirmaciones.
                     </p>
-
                 </div>
 
-                <button
-                    className="btn-actualizar-familias"
-                    onClick={() => void cargarFamilias()}
-                    disabled={cargando}
-                >
-                    <RefreshCw
-                        size={17}
-                        className={cargando ? "spin" : ""}
-                    />
+                <div className="familias-header-actions">
+                    <button
+                        type="button"
+                        className="btn-agregar-familia"
+                        onClick={abrirFormularioNuevo}
+                    >
+                        <Plus size={17} />
+                        Agregar familia
+                    </button>
 
-                    <span>
-                        {cargando ? "Actualizando..." : "Actualizar"}
-                    </span>
-                </button>
-
+                    <button
+                        className="btn-actualizar-familias"
+                        onClick={() => void cargarFamilias()}
+                        disabled={cargando}
+                    >
+                        <RefreshCw
+                            size={17}
+                            className={cargando ? "spin" : ""}
+                        />
+                        <span>
+                            {cargando ? "Actualizando..." : "Actualizar"}
+                        </span>
+                    </button>
+                </div>
             </div>
 
             {/* CARGANDO */}
@@ -323,6 +434,17 @@ Por favor, confirmen su asistencia.
 
             {!cargando && !error && (
                 <>
+                    {errorOperacion && (
+                        <div className="alert alert-danger" role="alert">
+                            {errorOperacion}
+                            <button
+                                type="button"
+                                className="btn-close float-end"
+                                aria-label="Cerrar"
+                                onClick={() => setErrorOperacion("")}
+                            />
+                        </div>
+                    )}
 
                     {/* =====================================
                         ESTADÍSTICAS DE INVITADOS
@@ -414,56 +536,30 @@ Por favor, confirmen su asistencia.
                                 </p>
                             </div>
 
-                            <div className="familias-filtros">
+                            <div className="familias-toolbar-actions">
+                                <div className="familias-filtros">
+                                    <div className="familia-search">
+                                        <Search size={18} />
+                                        <input
+                                            type="text"
+                                            placeholder="Buscar familia o teléfono..."
+                                            value={busqueda}
+                                            onChange={(e) => setBusqueda(e.target.value)}
+                                        />
+                                    </div>
 
-                                {/* BUSCADOR */}
-
-                                <div className="familia-search">
-
-                                    <Search size={18} />
-
-                                    <input
-                                        type="text"
-                                        placeholder="Buscar familia o teléfono..."
-                                        value={busqueda}
-                                        onChange={(e) =>
-                                            setBusqueda(e.target.value)
-                                        }
-                                    />
-
+                                    <select
+                                        value={filtroEstado}
+                                        onChange={(e) => setFiltroEstado(e.target.value)}
+                                        aria-label="Filtrar por estado"
+                                    >
+                                        <option value="todos">Todos los estados</option>
+                                        <option value="pendiente">Pendientes</option>
+                                        <option value="enviada">Enviadas</option>
+                                        <option value="confirmada">Confirmadas</option>
+                                        <option value="cancelada">Canceladas</option>
+                                    </select>
                                 </div>
-
-                                {/* FILTRO DE ESTADO */}
-
-                                <select
-                                    value={filtroEstado}
-                                    onChange={(e) =>
-                                        setFiltroEstado(e.target.value)
-                                    }
-                                    aria-label="Filtrar por estado"
-                                >
-                                    <option value="todos">
-                                        Todos los estados
-                                    </option>
-
-                                    <option value="pendiente">
-                                        Pendientes
-                                    </option>
-
-                                    <option value="enviada">
-                                        Enviadas
-                                    </option>
-
-                                    <option value="confirmada">
-                                        Confirmadas
-                                    </option>
-
-                                    <option value="cancelada">
-                                        Canceladas
-                                    </option>
-
-                                </select>
-
                             </div>
 
                         </div>
@@ -599,6 +695,30 @@ Por favor, confirmen su asistencia.
                                                             </span>
                                                         </button>
 
+                                                        <button
+                                                            type="button"
+                                                            className="btn-editar-familia"
+                                                            onClick={() => abrirFormularioEdicion(familia)}
+                                                            disabled={guardando || eliminandoId !== ""}
+                                                            title="Editar familia"
+                                                            aria-label={`Editar ${familia.familia}`}
+                                                        >
+                                                            <Pencil size={16} />
+                                                        </button>
+
+                                                        <button
+                                                            type="button"
+                                                            className="btn-eliminar-familia"
+                                                            onClick={() => void borrarFamilia(familia)}
+                                                            disabled={guardando || eliminandoId !== ""}
+                                                            title="Eliminar familia"
+                                                            aria-label={`Eliminar ${familia.familia}`}
+                                                        >
+                                                            {eliminandoId === familia.id
+                                                                ? <RefreshCw size={16} className="spin" />
+                                                                : <Trash2 size={16} />}
+                                                        </button>
+
                                                     </div>
 
                                                 </td>
@@ -642,6 +762,162 @@ Por favor, confirmen su asistencia.
                         </div>
 
                     </div>
+
+                    {formularioAbierto && (
+                        <div
+                            className="familia-form-overlay"
+                            onClick={() => {
+                                if (!guardando) {
+                                    setFormularioAbierto(false);
+                                }
+                            }}
+                        >
+                            <div
+                                className="familia-form-modal"
+                                role="dialog"
+                                aria-modal="true"
+                                aria-labelledby="familia-form-title"
+                                onClick={(event) => event.stopPropagation()}
+                            >
+                                <div className="mensaje-modal-header">
+                                    <div>
+                                        <span>ADMINISTRACIÓN DE INVITADOS</span>
+                                        <h4 id="familia-form-title">
+                                            {familiaEnEdicion ? "Editar familia" : "Agregar familia"}
+                                        </h4>
+                                    </div>
+                                    <button
+                                        type="button"
+                                        onClick={() => setFormularioAbierto(false)}
+                                        aria-label="Cerrar"
+                                        disabled={guardando}
+                                    >
+                                        <X size={20} />
+                                    </button>
+                                </div>
+
+                                <form onSubmit={(event) => void guardarFamilia(event)}>
+                                    <div className="familia-form-fields">
+                                        {errorOperacion && (
+                                            <div className="familia-form-error" role="alert">
+                                                {errorOperacion}
+                                            </div>
+                                        )}
+                                        <label>
+                                            Nombre de la familia
+                                            <input
+                                                type="text"
+                                                value={formulario.familia}
+                                                onChange={(event) =>
+                                                    setFormulario({ ...formulario, familia: event.target.value })
+                                                }
+                                                required
+                                                maxLength={120}
+                                                autoFocus
+                                            />
+                                        </label>
+
+                                        <div className="familia-form-numeros">
+                                            <label>
+                                                Adultos
+                                                <input
+                                                    type="number"
+                                                    min="0"
+                                                    step="1"
+                                                    value={formulario.adultos}
+                                                    onChange={(event) =>
+                                                        setFormulario({ ...formulario, adultos: Number(event.target.value) })
+                                                    }
+                                                    required
+                                                />
+                                            </label>
+                                            <label>
+                                                Niños
+                                                <input
+                                                    type="number"
+                                                    min="0"
+                                                    step="1"
+                                                    value={formulario.ninos}
+                                                    onChange={(event) =>
+                                                        setFormulario({ ...formulario, ninos: Number(event.target.value) })
+                                                    }
+                                                    required
+                                                />
+                                            </label>
+                                        </div>
+
+                                        <label>
+                                            Teléfono
+                                            <input
+                                                type="tel"
+                                                value={formulario.telefono}
+                                                onChange={(event) =>
+                                                    setFormulario({ ...formulario, telefono: event.target.value })
+                                                }
+                                                maxLength={20}
+                                            />
+                                        </label>
+
+                                        <label>
+                                            Estado de invitación
+                                            <select
+                                                value={formulario.estado}
+                                                onChange={(event) => {
+                                                    const estado = event.target.value;
+                                                    if (
+                                                        estado === "pendiente" ||
+                                                        estado === "enviada" ||
+                                                        estado === "confirmada" ||
+                                                        estado === "cancelada"
+                                                    ) {
+                                                        setFormulario({ ...formulario, estado });
+                                                    }
+                                                }}
+                                            >
+                                                <option value="pendiente">Pendiente</option>
+                                                <option value="enviada">Enviada</option>
+                                                <option value="confirmada">Confirmada</option>
+                                                <option value="cancelada">Cancelada</option>
+                                            </select>
+                                        </label>
+
+                                        <label>
+                                            Mensaje personalizado
+                                            <textarea
+                                                value={formulario.mensajeFamilia}
+                                                onChange={(event) =>
+                                                    setFormulario({ ...formulario, mensajeFamilia: event.target.value })
+                                                }
+                                                rows={4}
+                                                maxLength={1000}
+                                            />
+                                        </label>
+                                    </div>
+
+                                    <div className="familia-form-actions">
+                                        <button
+                                            type="button"
+                                            className="btn-cancelar-familia"
+                                            onClick={() => setFormularioAbierto(false)}
+                                            disabled={guardando}
+                                        >
+                                            Cancelar
+                                        </button>
+                                        <button
+                                            type="submit"
+                                            className="btn-agregar-familia"
+                                            disabled={guardando}
+                                        >
+                                            {guardando && <RefreshCw size={16} className="spin" />}
+                                            {guardando
+                                                ? "Guardando..."
+                                                : familiaEnEdicion ? "Guardar cambios" : "Agregar familia"}
+                                        </button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    )}
 
                     {/* =====================================
                         MODAL DE MENSAJE PERSONALIZADO

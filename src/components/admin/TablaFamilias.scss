@@ -41,6 +41,56 @@ $texto-secundario: #93858a;
   min-width: 0;
 }
 
+.familias-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.btn-agregar-familia,
+.btn-cancelar-familia {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 43px;
+  padding: 11px 16px;
+  border: 1px solid transparent;
+  border-radius: 10px;
+  font-size: 12px;
+  font-weight: 600;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: 0.2s ease;
+
+  &:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+}
+
+.btn-agregar-familia {
+  color: #fff;
+  background: #6d9e7b;
+  border-color: #6d9e7b;
+
+  &:hover:not(:disabled) {
+    background: #578665;
+    border-color: #578665;
+    transform: translateY(-1px);
+  }
+}
+
+.btn-cancelar-familia {
+  color: #806b70;
+  background: #fff;
+  border-color: #eadfda;
+
+  &:hover:not(:disabled) {
+    background: #fdf8f7;
+  }
+}
+
 .familias-eyebrow {
   display: flex;
   align-items: center;
@@ -241,6 +291,12 @@ $texto-secundario: #93858a;
     font-size: 21px;
     font-weight: 600;
     margin: 0 0 6px;
+  }
+
+  .familias-toolbar-actions {
+    display: flex;
+    align-items: center;
+    gap: 12px;
   }
 
   p {
@@ -456,7 +512,9 @@ $texto-secundario: #93858a;
 }
 
 .btn-whatsapp,
-.btn-copy {
+.btn-copy,
+.btn-editar-familia,
+.btn-eliminar-familia {
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -495,6 +553,41 @@ $texto-secundario: #93858a;
     color: white;
     background: #d4af37;
     border-color: #d4af37;
+  }
+}
+
+.btn-editar-familia,
+.btn-eliminar-familia {
+  width: 36px;
+  height: 36px;
+  padding: 8px;
+  background: #fff;
+
+  &:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+  }
+}
+
+.btn-editar-familia {
+  color: #8d7076;
+  border: 1px solid #eadfda;
+
+  &:hover:not(:disabled) {
+    color: #fff;
+    background: #b98b8f;
+    border-color: #b98b8f;
+  }
+}
+
+.btn-eliminar-familia {
+  color: #a65d5d;
+  border: 1px solid #f0d7d7;
+
+  &:hover:not(:disabled) {
+    color: #fff;
+    background: #b76565;
+    border-color: #b76565;
   }
 }
 
@@ -598,6 +691,90 @@ $texto-secundario: #93858a;
   border-top: 1px solid #f1e9e5;
 }
 
+.familia-form-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1060;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 20px;
+  background: rgba(45, 32, 37, 0.55);
+  backdrop-filter: blur(5px);
+}
+
+.familia-form-modal {
+  width: 100%;
+  max-width: 560px;
+  max-height: 90vh;
+  overflow-y: auto;
+  background: #fff;
+  border: 1px solid rgba(#d4af37, 0.3);
+  border-radius: 18px;
+  box-shadow: 0 15px 50px rgba(40, 25, 30, 0.2);
+}
+
+.familia-form-fields {
+  display: grid;
+  gap: 15px;
+  padding: 22px 25px;
+
+  label {
+    display: grid;
+    gap: 7px;
+    color: #71545a;
+    font-size: 12px;
+    font-weight: 600;
+  }
+
+  input,
+  select,
+  textarea {
+    width: 100%;
+    padding: 10px 12px;
+    color: #66545a;
+    background: #fdfafa;
+    border: 1px solid #eadfda;
+    border-radius: 8px;
+    font: inherit;
+    font-weight: 400;
+    outline: none;
+
+    &:focus {
+      border-color: #d59a9e;
+      box-shadow: 0 0 0 3px rgba(#d59a9e, 0.12);
+    }
+  }
+
+  textarea {
+    resize: vertical;
+  }
+}
+
+.familia-form-numeros {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.familia-form-error {
+  padding: 11px 13px;
+  color: #8d3030;
+  background: #f9e9e9;
+  border-radius: 8px;
+  font-size: 12px;
+}
+
+.familia-form-actions {
+  display: flex;
+  justify-content: flex-end;
+  flex-wrap: wrap;
+  gap: 10px;
+  padding: 16px 25px;
+  background: #fdfafa;
+  border-top: 1px solid #f1e9e5;
+}
+
 /* =========================================
    RESPONSIVE TABLET
 ========================================= */
@@ -611,9 +788,18 @@ $texto-secundario: #93858a;
     padding: 25px;
   }
 
+  .familias-header-actions {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
   .familias-toolbar {
     flex-direction: column;
     align-items: stretch;
+  }
+
+  .familias-toolbar-actions {
+    width: 100%;
   }
 
   .familias-filtros {
@@ -665,6 +851,11 @@ $texto-secundario: #93858a;
   }
 
   .btn-actualizar-familias {
+    width: 100%;
+  }
+
+  .familias-header-actions,
+  .familias-header-actions button {
     width: 100%;
   }
 
@@ -755,6 +946,23 @@ $texto-secundario: #93858a;
 
     button {
       width: 100%;
+    }
+
+    .familia-form-overlay {
+      padding: 12px;
+    }
+
+    .familia-form-fields {
+      padding: 18px;
+    }
+
+    .familia-form-actions {
+      padding: 15px;
+      flex-direction: column-reverse;
+
+      button {
+        width: 100%;
+      }
     }
   }
 }
