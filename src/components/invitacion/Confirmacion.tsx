@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { MessageCircle, CheckCircle2, XCircle, Users } from "lucide-react";
 import { invitacionConfig } from "../../config/invitacion.config";
 
@@ -14,9 +14,13 @@ export const Confirmacion: React.FC<ConfirmacionProps> = ({
     ninos = 0,
 }) => {
     const { contacto, general, personalizacion } = invitacionConfig;
+    const [visible, setVisible] = useState(false);
+    const seccionRef = useRef<HTMLElement | null>(null);
 
     const [asistencia, setAsistencia] = useState<"si" | "no">("si");
     const [mensajePersonal, setMensajePersonal] = useState("");
+
+    const esReservado = personalizacion?.tieneReservacion ?? false;
 
     const colores = {
         paloDeRosa: invitacionConfig.colores?.paloDeRosa ?? "#D59A9E",
@@ -25,6 +29,21 @@ export const Confirmacion: React.FC<ConfirmacionProps> = ({
         rosaRubor: invitacionConfig.colores?.rosaRubor ?? "#F4C2C2",
         cremaMarfil: invitacionConfig.colores?.cremaMarfil ?? "#EFE6D5",
     };
+
+    useEffect(() => {
+        const elemento = seccionRef.current;
+        if (!elemento) return;
+
+        const observer = new IntersectionObserver(
+            ([entry]) => {
+                setVisible(entry.isIntersecting);
+            },
+            { threshold: 0.15 }
+        );
+
+        observer.observe(elemento);
+        return () => observer.disconnect();
+    }, []);
 
     if (!personalizacion.mostrarConfirmacion) {
         return null;
@@ -60,74 +79,134 @@ export const Confirmacion: React.FC<ConfirmacionProps> = ({
 
     return (
         <section
+            ref={seccionRef}
             id="confirmacion"
+            className={`rsvp-sec ${visible ? "rsvp-sec--activa" : ""}`}
             style={{
                 backgroundColor: colores.cremaMarfil,
                 padding: "4.5rem 1.25rem 5.5rem 1.25rem",
                 textAlign: "center",
+                overflow: "hidden",
             }}
         >
+            <style>{`
+                .rsvp-header {
+                    opacity: 0;
+                    transform: translateY(18px);
+                    transition: opacity 0.8s ease, transform 0.8s ease;
+                }
+                .rsvp-sec--activa .rsvp-header {
+                    opacity: 1;
+                    transform: translateY(0);
+                }
+
+                .rsvp-card {
+                    opacity: 0;
+                    transform: translateY(28px) scale(0.97);
+                    transition: opacity 0.85s cubic-bezier(0.22, 1, 0.36, 1) 0.15s,
+                                transform 0.85s cubic-bezier(0.22, 1, 0.36, 1) 0.15s;
+                }
+                .rsvp-sec--activa .rsvp-card {
+                    opacity: 1;
+                    transform: translateY(0) scale(1);
+                }
+
+                .rsvp-opcion {
+                    transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1),
+                                background-color 0.3s ease,
+                                color 0.3s ease,
+                                box-shadow 0.3s ease;
+                }
+                .rsvp-opcion:hover {
+                    transform: translateY(-2px);
+                }
+                .rsvp-opcion--activa {
+                    transform: scale(1.04);
+                    box-shadow: 0 6px 14px rgba(181, 115, 120, 0.28);
+                }
+
+                .rsvp-textarea {
+                    transition: border-color 0.3s ease, box-shadow 0.3s ease;
+                    outline: none;
+                }
+                .rsvp-textarea:focus {
+                    border-color: ${colores.doradoChampagne} !important;
+                    box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.18);
+                }
+
+                .rsvp-btn-wa {
+                    animation: rsvpPulsoWa 2.8s ease-in-out infinite;
+                    transition: transform 0.25s ease, filter 0.25s ease;
+                }
+                .rsvp-btn-wa:hover {
+                    transform: scale(1.05);
+                    filter: brightness(1.05);
+                }
+                .rsvp-btn-wa svg {
+                    animation: rsvpIconoWa 2.8s ease-in-out infinite;
+                }
+
+                @keyframes rsvpPulsoWa {
+                    0%, 100% {
+                        box-shadow: 0 4px 14px rgba(213, 154, 158, 0.45),
+                                    0 0 0 0 rgba(212, 175, 55, 0.45);
+                    }
+                    50% {
+                        box-shadow: 0 6px 18px rgba(213, 154, 158, 0.55),
+                                    0 0 0 8px rgba(212, 175, 55, 0);
+                    }
+                }
+
+
+                @keyframes rsvpIconoWa {
+                    0%, 100% { transform: rotate(0deg); }
+                    15% { transform: rotate(-12deg) scale(1.12); }
+                    30% { transform: rotate(10deg) scale(1.12); }
+                    45% { transform: rotate(0deg) scale(1); }
+                }
+            `}</style>
             <div style={{ maxWidth: "680px", margin: "0 auto" }}>
-                <span
-                    style={{
-                        color: colores.doradoChampagne,
-                        textTransform: "uppercase",
-                        letterSpacing: "0.18em",
-                        fontSize: "0.75rem",
-                        fontWeight: 600,
-                    }}
-                >
-                    R.S.V.P.
-                </span>
-
-                <h2
-                    style={{
-                        color: colores.paloDeRosa,
-                        fontFamily: "Georgia, serif",
-                        fontSize: "2rem",
-                        marginTop: "0.5rem",
-                        fontWeight: 500,
-                    }}
-                >
-                    Confirma tu Asistencia
-                </h2>
-
-                {/* Ornamento dorado */}
-                <div
-                    style={{
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "center",
-                        margin: "1.5rem 0 2rem 0",
-                    }}
-                >
+                <div className="rsvp-header">
                     <span
                         style={{
-                            height: "1px",
-                            width: "64px",
-                            backgroundColor: colores.doradoChampagne,
-                        }}
-                    />
-                    <span
-                        style={{
-                            margin: "0 12px",
-                            fontSize: "1.1rem",
                             color: colores.doradoChampagne,
+                            textTransform: "uppercase",
+                            letterSpacing: "0.18em",
+                            fontSize: "0.75rem",
+                            fontWeight: 600,
                         }}
                     >
-                        ✦
+                        R.S.V.P.
                     </span>
-                    <span
+
+                    <h2
                         style={{
-                            height: "1px",
-                            width: "64px",
-                            backgroundColor: colores.doradoChampagne,
+                            color: colores.paloDeRosa,
+                            fontFamily: "Georgia, serif",
+                            fontSize: "2rem",
+                            marginTop: "0.5rem",
+                            fontWeight: 500,
                         }}
-                    />
+                    >
+                        Confirma tu Asistencia
+                    </h2>
+
+                    <div
+                        style={{
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "center",
+                            margin: "1.5rem 0 2rem 0",
+                        }}
+                    >
+                        <span style={{ height: "1px", width: "64px", backgroundColor: colores.doradoChampagne }} />
+                        <span style={{ margin: "0 12px", fontSize: "1.1rem", color: colores.doradoChampagne }}>✦</span>
+                        <span style={{ height: "1px", width: "64px", backgroundColor: colores.doradoChampagne }} />
+                    </div>
                 </div>
 
-                {/* Tarjeta de confirmación */}
                 <div
+                    className="rsvp-card"
                     style={{
                         backgroundColor: colores.blancoHueso,
                         border: `1px solid ${colores.rosaRubor}`,
@@ -136,7 +215,6 @@ export const Confirmacion: React.FC<ConfirmacionProps> = ({
                         boxShadow: "0 6px 20px rgba(0, 0, 0, 0.05)",
                     }}
                 >
-                    {/* Datos de la familia invitada */}
                     <div
                         style={{
                             backgroundColor: colores.cremaMarfil,
@@ -168,13 +246,13 @@ export const Confirmacion: React.FC<ConfirmacionProps> = ({
                         >
                             <Users size={15} color={colores.doradoChampagne} />
                             <span>
-                                Pases reservados: <strong>{adultos} adulto(s)</strong>
+                                {esReservado ? "Pases reservados:" : "Pases asignados:"}{" "}
+                                <strong>{adultos} adulto(s)</strong>
                                 {ninos > 0 ? ` y ${ninos} niño(s)` : ""}
                             </span>
                         </div>
                     </div>
 
-                    {/* Selector Sí / No */}
                     <div
                         style={{
                             display: "flex",
@@ -187,6 +265,7 @@ export const Confirmacion: React.FC<ConfirmacionProps> = ({
                         <button
                             type="button"
                             onClick={() => setAsistencia("si")}
+                            className={`rsvp-opcion ${asistencia === "si" ? "rsvp-opcion--activa" : ""}`}
                             style={{
                                 display: "inline-flex",
                                 alignItems: "center",
@@ -210,6 +289,7 @@ export const Confirmacion: React.FC<ConfirmacionProps> = ({
                         <button
                             type="button"
                             onClick={() => setAsistencia("no")}
+                            className={`rsvp-opcion ${asistencia === "no" ? "rsvp-opcion--activa" : ""}`}
                             style={{
                                 display: "inline-flex",
                                 alignItems: "center",
@@ -229,8 +309,6 @@ export const Confirmacion: React.FC<ConfirmacionProps> = ({
                             <span>No podremos asistir</span>
                         </button>
                     </div>
-
-                    {/* Mensaje opcional de la familia para Mary */}
                     <div style={{ textAlign: "left", marginBottom: "1.5rem" }}>
                         <label
                             htmlFor="mensaje-familia-whatsapp"
@@ -250,6 +328,7 @@ export const Confirmacion: React.FC<ConfirmacionProps> = ({
                             value={mensajePersonal}
                             onChange={(e) => setMensajePersonal(e.target.value)}
                             placeholder="Ej. ¡Muchas felicidades Mary! Ahí estaremos celebrando contigo..."
+                            className="rsvp-textarea"
                             style={{
                                 width: "100%",
                                 padding: "0.75rem",
@@ -264,24 +343,23 @@ export const Confirmacion: React.FC<ConfirmacionProps> = ({
                         />
                     </div>
 
-                    {/* Botón enviar por WhatsApp */}
                     <button
                         type="button"
                         onClick={enviarWhatsApp}
+                        className="rsvp-btn-wa"
                         style={{
                             display: "inline-flex",
                             alignItems: "center",
                             justifyContent: "center",
                             gap: "8px",
-                            backgroundColor: "#25D366",
-                            color: "#ffffff",
-                            border: "none",
+                            background: `linear-gradient(135deg, ${colores.paloDeRosa}, #bd8287)`,
+                            color: colores.blancoHueso,
+                            border: `1.5px solid ${colores.doradoChampagne}`,
                             padding: "12px 26px",
                             borderRadius: "9999px",
                             fontSize: "0.95rem",
                             fontWeight: 700,
                             cursor: "pointer",
-                            boxShadow: "0 4px 14px rgba(37, 211, 102, 0.35)",
                         }}
                     >
                         <MessageCircle size={19} />

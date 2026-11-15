@@ -23,6 +23,7 @@ export interface InvitacionConfig {
     mostrarVideo: boolean;
     mostrarMesaRegalos: boolean;
     mostrarConfirmacion: boolean;
+    tieneReservacion: boolean;
   };
 
   contacto: {

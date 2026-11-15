@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { Sparkles, Ticket, Calendar, Clock, Heart, Crown } from "lucide-react";
 import "./FechaBoleto.scss";
+import { invitacionConfig } from "../../config/invitacion.config";
 
 interface FechaBoletoProps {
     tituloEvento: string;
@@ -183,6 +184,7 @@ const FechaBoleto = ({
     });
 
     const todosRevelados = revelados.dia && revelados.mes && revelados.hora;
+    const esReservado = invitacionConfig.personalizacion?.tieneReservacion ?? false;
 
     const saludoFamilia = /^familia\b/i.test(nombreFamilia.trim())
         ? nombreFamilia.trim()
@@ -286,8 +288,15 @@ const FechaBoleto = ({
                                 <Ticket size={18} />
                             </div>
 
-                            <span className="boleto-ticket__para">RESERVADO PARA</span>
+                            <span className="boleto-ticket__para">
+                                {esReservado ? "RESERVADO PARA" : "INVITACIÓN PARA"}
+                            </span>
                             <h4 className="boleto-ticket__familia">{saludoFamilia}</h4>
+                            {!esReservado && (
+                                <small className="boleto-ticket__nota-libre">
+                                    Lugares conforme vayan llegando
+                                </small>
+                            )}
 
                             {totalPases > 0 && (
                                 <div className="boleto-ticket__pases">

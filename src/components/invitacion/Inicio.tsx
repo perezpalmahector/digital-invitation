@@ -56,10 +56,28 @@ const Inicio = ({
         }
     );
 
+    const linternas = Array.from({ length: 14 }, (_, i) => i);
+
     return (
         <section className="inicio-mary">
+            {/* Linternas flotantes estilo Enredados */}
+            <div className="inicio-linternas" aria-hidden="true">
+                {linternas.map((i) => (
+                    <span
+                        key={i}
+                        className={`linterna linterna--${(i % 4) + 1}`}
+                        style={{
+                            left: `${6 + ((i * 7.1) % 88)}%`,
+                            animationDuration: `${11 + (i % 5) * 2.4}s`,
+                            animationDelay: `${-(i * 1.6)}s`,
+                        }}
+                    />
+                ))}
+            </div>
+
             {/* Foto protagonista */}
             <div className="inicio-foto-hero">
+
                 <div className="inicio-marco">
                     <img
                         src="/images/Mary-18.png"

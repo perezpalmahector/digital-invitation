@@ -63,6 +63,7 @@ export interface InvitacionConfigConMensajes extends InvitacionConfig {
     titulo: string;
     mensaje: string;
     lluviaSobres: boolean;
+    mostrarDatosBancarios?: boolean;
     datosBancarios?: {
       banco: string;
       titular: string;
@@ -97,6 +98,7 @@ export const invitacionConfig: InvitacionConfigConMensajes = {
     mostrarVideo: true,
     mostrarMesaRegalos: true,
     mostrarConfirmacion: true,
+    tieneReservacion: false,
   },
 
   contacto: {
@@ -126,10 +128,11 @@ export const invitacionConfig: InvitacionConfigConMensajes = {
   },
 
   mesaRegalos: {
-    titulo: "Mesa de Regalos y Lluvia de Sobres",
+    titulo: "Detalle de Obsequio",
     mensaje:
-      "Tu presencia es el regalo más valioso en esta noche tan especial. Si deseas tener un detalle conmigo, puedes hacerlo mediante lluvia de sobres o transferencia bancaria.",
-    lluviaSobres: true,
+      "Tu presencia es el regalo más valioso y lo más importante en esta noche tan especial. Sin embargo, si deseas tener un detalle conmigo, cualquier obsequio que nazca de tu corazón será recibido con mucho cariño.",
+    lluviaSobres: false,
+    mostrarDatosBancarios: false,
     datosBancarios: {
       banco: "BBVA México",
       titular: "María Guadalupe Martinez Miranda",

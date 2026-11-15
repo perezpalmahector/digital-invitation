@@ -159,6 +159,8 @@ $texto: #5c494f;
   border: 1px solid rgba($dorado-champagne, 0.85);
   border-radius: 200px 200px 18px 18px;
   box-shadow: 0 12px 32px rgba(80, 50, 50, 0.18);
+  overflow: hidden;
+  position: relative;
 }
 
 .inicio-imagen {
@@ -665,5 +667,251 @@ $texto: #5c494f;
     margin: 3px auto 0;
     font-size: 9.5px;
     line-height: 1.2;
+  }
+}
+/* =========================================================
+   ANIMACIONES DE PORTADA (INICIO)
+   ========================================================= */
+
+.inicio-marco {
+  animation:
+    inEntradaArco 1s cubic-bezier(0.22, 1, 0.36, 1) both,
+    inHaloArco 4.5s ease-in-out 1.2s infinite;
+
+  &::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: -130%;
+    width: 55%;
+    height: 100%;
+    background: linear-gradient(
+      90deg,
+      transparent 0%,
+      rgba(255, 255, 255, 0.45) 50%,
+      transparent 100%
+    );
+    transform: skewX(-20deg);
+    animation: inDestelloArco 6.5s ease-in-out 1.5s infinite;
+    pointer-events: none;
+  }
+}
+
+.inicio-imagen {
+  animation: inKenBurns 14s ease-in-out infinite alternate;
+}
+
+.inicio-encabezado {
+  animation: inBajarSuave 0.9s cubic-bezier(0.22, 1, 0.36, 1) 0.15s both;
+}
+
+.inicio-nombre {
+  animation: inBrilloNombre 4s ease-in-out infinite;
+}
+
+.inicio-tarjeta-datos {
+  animation: inSubirSuave 0.95s cubic-bezier(0.22, 1, 0.36, 1) 0.3s both;
+}
+
+.inicio-diamante {
+  display: inline-block;
+  animation: inGiroDiamante 3.6s ease-in-out infinite;
+}
+
+/* Pulso vivo en el recuadro de Segundos de la cuenta regresiva */
+.cuenta-item:last-child strong {
+  animation: inPulsoSegundos 1s ease-in-out infinite;
+}
+
+@keyframes inEntradaArco {
+  from {
+    opacity: 0;
+    transform: scale(0.92) translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+@keyframes inHaloArco {
+  0%,
+  100% {
+    box-shadow:
+      0 12px 32px rgba(80, 50, 50, 0.18),
+      0 0 0 0 rgba($dorado-champagne, 0.35);
+  }
+  50% {
+    box-shadow:
+      0 16px 38px rgba(181, 115, 120, 0.26),
+      0 0 0 6px rgba($dorado-champagne, 0);
+  }
+}
+
+@keyframes inDestelloArco {
+  0% {
+    left: -130%;
+  }
+  22% {
+    left: 160%;
+  }
+  100% {
+    left: 160%;
+  }
+}
+
+@keyframes inKenBurns {
+  0% {
+    transform: scale(1);
+  }
+  100% {
+    transform: scale(1.06);
+  }
+}
+
+@keyframes inBajarSuave {
+  from {
+    opacity: 0;
+    transform: translateY(-18px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes inSubirSuave {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes inBrilloNombre {
+  0%,
+  100% {
+    text-shadow: 0 2px 10px rgba(184, 115, 120, 0.15);
+  }
+  50% {
+    text-shadow: 0 4px 18px rgba(212, 175, 55, 0.38);
+  }
+}
+
+@keyframes inGiroDiamante {
+  0%,
+  100% {
+    transform: scale(1) rotate(0deg);
+  }
+  50% {
+    transform: scale(1.28) rotate(22deg);
+  }
+}
+
+@keyframes inPulsoSegundos {
+  0%,
+  100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.05);
+  }
+}
+/* =========================================================
+   LINTERNAS FLOTANTES ESTILO ENREDADOS (PORTADA)
+   ========================================================= */
+
+.inicio-linternas {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.linterna {
+  position: absolute;
+  bottom: -45px;
+  border-radius: 6px 6px 3px 3px;
+  background: radial-gradient(
+    ellipse at 50% 65%,
+    #fffdf5 0%,
+    #ffe49e 42%,
+    #e5a93c 80%,
+    rgba(212, 175, 55, 0.85) 100%
+  );
+  border: 1px solid rgba(255, 243, 200, 0.85);
+  box-shadow:
+    0 0 12px rgba(255, 214, 102, 0.75),
+    0 0 24px rgba(212, 175, 55, 0.45),
+    inset 0 -4px 8px rgba(255, 166, 0, 0.55);
+  opacity: 0;
+  animation: subirLinterna linear infinite;
+
+  /* Pequeña luz / llama en la base del farol */
+  &::after {
+    content: "";
+    position: absolute;
+    bottom: -2px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 45%;
+    height: 3px;
+    border-radius: 50%;
+    background: #fff9db;
+    box-shadow: 0 0 8px 2px #ffcf56;
+  }
+
+  /* Variaciones de tamaño y profundidad (lejanas y cercanas) */
+  &--1 {
+    width: 11px;
+    height: 15px;
+    filter: blur(0.6px);
+  }
+
+  &--2 {
+    width: 15px;
+    height: 20px;
+  }
+
+  &--3 {
+    width: 19px;
+    height: 25px;
+    box-shadow:
+      0 0 16px rgba(255, 214, 102, 0.85),
+      0 0 32px rgba(212, 175, 55, 0.55);
+  }
+
+  &--4 {
+    width: 9px;
+    height: 13px;
+    filter: blur(1px);
+  }
+}
+
+@keyframes subirLinterna {
+  0% {
+    transform: translateY(0) translateX(0) rotate(-2deg) scale(0.85);
+    opacity: 0;
+  }
+  12% {
+    opacity: 0.9;
+  }
+  35% {
+    transform: translateY(-35svh) translateX(14px) rotate(3deg) scale(0.95);
+  }
+  65% {
+    transform: translateY(-70svh) translateX(-12px) rotate(-3deg) scale(1);
+    opacity: 0.85;
+  }
+  90% {
+    opacity: 0.55;
+  }
+  100% {
+    transform: translateY(-112svh) translateX(10px) rotate(2deg) scale(0.9);
+    opacity: 0;
   }
 }

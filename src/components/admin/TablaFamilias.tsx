@@ -1,3 +1,4 @@
+import { invitacionConfig } from "../../config/invitacion.config";
 
 import {
     useMemo,
@@ -220,24 +221,59 @@ const TablaFamilias = () => {
     // MENSAJE PERSONALIZADO
     // =========================================
 
+    // =========================================
+    // MENSAJE PERSONALIZADO
+    // =========================================
+
+    // =========================================
+    // MENSAJE PERSONALIZADO
+    // =========================================
+
+    // =========================================
+    // MENSAJE PERSONALIZADO
+    // =========================================
+
     const obtenerMensaje = (familia: FamiliaInvitada) => {
         const link = obtenerLinkInvitacion(familia);
+        const { general, evento, ubicaciones } = invitacionConfig;
 
-        return `${familia.mensajeFamilia}
+        const fechaTexto = new Date(`${evento.fecha}T12:00:00`).toLocaleDateString(
+            "es-MX",
+            {
+                day: "numeric",
+                month: "long",
+                year: "numeric",
+            }
+        );
 
-Nos encantará contar con su presencia.
+        const horaTexto = ubicaciones?.ceremonia?.hora ?? `${evento.hora} hrs`;
 
-🎉 Celebración de los XVIII años de Mary
-📅 18 de diciembre de 2026
-🕒 3:00 PM
+        // Símbolos tipográficos universales (nunca se rompen ni muestran rombos)
+        const estrella = "\u2728";         // Destellos
+        const flor = "\u2764\uFE0F";       // Corazon rojo/rosa
+        const rombo = "\u231A";            // Reloj
+        const flecha = "\u2709\uFE0F";     // Sobre de invitacion
+        const corazon = "\u2763\uFE0F";    // Corazon elegante
 
-🎟️ Su invitación familiar:
+
+        const saludoBase =
+            familia.mensajeFamilia?.trim() ||
+            `Querida ${familia.familia}, nos encantará contar con su presencia en este día tan especial para ${general.nombre}. Será una alegría compartir esta celebración con ustedes.`;
+
+        return `${saludoBase}
+
+${estrella} *Celebración de los ${general.tipoEvento} de ${general.nombre}*
+${flor} *Fecha:* ${fechaTexto}
+${rombo} *Hora:* ${horaTexto}
+
+${flecha} *Su invitación familiar:*
 ${link}
 
-Por favor, confirmen su asistencia.
-
-¡Los esperamos con mucho cariño!`;
+Por favor, confirmen su asistencia dentro de la invitación. ¡Los esperamos con mucho cariño! ${corazon}`;
     };
+
+
+
 
     // =========================================
     // ENVIAR WHATSAPP
