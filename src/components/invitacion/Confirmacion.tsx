@@ -84,16 +84,16 @@ export const Confirmacion: React.FC<ConfirmacionProps> = ({
                 ? `${adultos} adulto(s) y ${ninos} niño(s)`
                 : `${adultos} adulto(s)`;
 
-        const iconoDestellos = "\u2728"; // ✨
-        const iconoCarta = "\uD83D\uDC8C"; // 💌
+        const destellos = String.fromCodePoint(0x2728);
+        const carta = String.fromCodePoint(0x1F48C);
 
         const textoConfirmacion =
             asistencia === "si"
-                ? `¡Hola ${general.nombre}! ${iconoDestellos} Somos *${nombreFamilia}* y confirmamos con mucha alegría nuestra asistencia a tus *${general.tipoEvento}* (${pasesTexto}).`
+                ? `¡Hola1 ${general.nombre}! ${destellos} Somos *${nombreFamilia}* y confirmamos con mucha alegría nuestra asistencia a tus *${general.tipoEvento}* (${pasesTexto}).`
                 : `Hola ${general.nombre}, somos *${nombreFamilia}*. Lamentablemente no podremos acompañarte en tus *${general.tipoEvento}*, pero te enviamos nuestros mejores deseos.`;
 
         const notaAdicional = mensajePersonal.trim()
-            ? `\n\n${iconoCarta} Mensaje para ti: "${mensajePersonal.trim()}"`
+            ? `\n\n${carta} Mensaje para ti: "${mensajePersonal.trim()}"`
             : "";
 
         const mensajeCompleto = encodeURIComponent(
