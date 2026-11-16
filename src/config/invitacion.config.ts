@@ -103,8 +103,8 @@ export const invitacionConfig: InvitacionConfigConMensajes = {
 
   contacto: {
     // Coloca aquí el número de Mary con código de país (ej. 5217711234567)
-    whatsapp: "5217710000000",
-    telefono: "7710000000",
+    whatsapp: "5217711105080",
+    telefono: "5217711105080",
     fechaLimiteConfirmacion: "10 de Diciembre de 2026",
   },
 
