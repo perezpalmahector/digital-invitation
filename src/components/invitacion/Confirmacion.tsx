@@ -85,7 +85,6 @@ export const Confirmacion: React.FC<ConfirmacionProps> = ({
                 : `${adultos} adulto(s)`;
 
         const estrella = "\u2726";
-        const corazon = "\u2665";
 
         const textoConfirmacion =
             asistencia === "si"
@@ -93,7 +92,7 @@ export const Confirmacion: React.FC<ConfirmacionProps> = ({
                 : `Hola ${general.nombre}, somos *${nombreFamilia}*. Lamentablemente no podremos acompañarte en tus *${general.tipoEvento}*, pero te enviamos nuestros mejores deseos.`;
 
         const notaAdicional = mensajePersonal.trim()
-            ? `\n\n${corazon} Mensaje para ti: "${mensajePersonal.trim()}"`
+            ? `\n\n Mensaje para ti: "${mensajePersonal.trim()}"`
             : "";
 
 
