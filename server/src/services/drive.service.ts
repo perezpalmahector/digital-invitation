@@ -1,4 +1,3 @@
-import { getStore } from "@netlify/blobs";
 import { readFile, writeFile, mkdir } from "node:fs/promises";
 import path from "node:path";
 import { googleDriveConfig } from "../config/google-drive.config";
@@ -19,19 +18,20 @@ const STORE_NAME = "invitacion-digital";
 const BLOB_KEY = "familias-data";
 const LOCAL_FILE = path.join(process.cwd(), "data", "familias.json");
 
-const obtenerAlmacenBlobs = () => {
-  const siteID = process.env.NETLIFY_SITE_ID;
-  const token = process.env.NETLIFY_AUTH_TOKEN;
+const getBlobsEndpoint = () => {
+  const siteID = (process.env.NETLIFY_SITE_ID || "").trim();
+  const token = (process.env.NETLIFY_AUTH_TOKEN || "").trim();
 
-  if (siteID && token) {
-    return getStore({
-      name: STORE_NAME,
-      siteID,
-      token,
-    });
+  if (!siteID || !token) {
+    throw new Error(
+      `Faltan variables de entorno: siteID=${Boolean(siteID)}, token=${Boolean(token)}`,
+    );
   }
 
-  return getStore(STORE_NAME);
+  return {
+    url: `https://netlify.com{encodeURIComponent(siteID)}/${encodeURIComponent(STORE_NAME)}/${encodeURIComponent(BLOB_KEY)}`,
+    token,
+  };
 };
 
 const extraerLista = (datos: unknown): FamiliaRecord[] => {
@@ -56,10 +56,7 @@ const descargarSemillaDesdeDrive = async (): Promise<FamiliaRecord[]> => {
       headers: { "User-Agent": "Mozilla/5.0" },
     });
 
-    if (!response.ok) {
-      return [];
-    }
-
+    if (!response.ok) return [];
     const datos: unknown = await response.json();
     return extraerLista(datos);
   } catch {
@@ -72,18 +69,29 @@ const descargarSemillaDesdeDrive = async (): Promise<FamiliaRecord[]> => {
 // =========================================
 export const obtenerFamiliasDrive = async (): Promise<FamiliaRecord[]> => {
   if (process.env.NETLIFY || process.env.AWS_LAMBDA_FUNCTION_NAME) {
-    const store = obtenerAlmacenBlobs();
-    const guardadas = await store.get(BLOB_KEY, { type: "json" });
+    const { url, token } = getBlobsEndpoint();
 
-    if (Array.isArray(guardadas)) {
-      return guardadas as FamiliaRecord[];
+    const response = await fetch(url, {
+      method: "GET",
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    if (response.ok) {
+      const datos: unknown = await response.json();
+      return extraerLista(datos);
     }
 
-    const iniciales = await descargarSemillaDesdeDrive();
-    if (iniciales.length > 0) {
-      await store.setJSON(BLOB_KEY, iniciales);
+    // Si es 404 significa que aún no existe el archivo en Netlify; lo crea desde Drive
+    if (response.status === 404) {
+      const iniciales = await descargarSemillaDesdeDrive();
+      await guardarFamiliasDrive(iniciales);
+      return iniciales;
     }
-    return iniciales;
+
+    const detalle = await response.text();
+    throw new Error(`Error Netlify Blobs GET (${response.status}): ${detalle}`);
   }
 
   try {
@@ -103,8 +111,23 @@ export const guardarFamiliasDrive = async (
   familias: FamiliaRecord[],
 ): Promise<void> => {
   if (process.env.NETLIFY || process.env.AWS_LAMBDA_FUNCTION_NAME) {
-    const store = obtenerAlmacenBlobs();
-    await store.setJSON(BLOB_KEY, familias);
+    const { url, token } = getBlobsEndpoint();
+
+    const response = await fetch(url, {
+      method: "PUT",
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(familias, null, 2),
+    });
+
+    if (!response.ok) {
+      const detalle = await response.text();
+      throw new Error(
+        `Error Netlify Blobs PUT (${response.status}): ${detalle}`,
+      );
+    }
     return;
   }
 

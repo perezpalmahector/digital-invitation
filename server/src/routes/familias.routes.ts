@@ -24,7 +24,10 @@ router.get("/", async (_req, res) => {
 
     res.status(502).json({
       success: false,
-      message: "No fue posible obtener las familias.",
+      message:
+        error instanceof Error
+          ? error.message
+          : "No fue posible obtener las familias.",
     });
   }
 });
@@ -65,7 +68,10 @@ router.post("/", async (req, res) => {
 
     return res.status(500).json({
       success: false,
-      message: "No fue posible registrar la familia.",
+      message:
+        error instanceof Error
+          ? error.message
+          : "No fue posible registrar la familia.",
     });
   }
 });
@@ -106,7 +112,10 @@ router.put("/:id", async (req, res) => {
 
     return res.status(500).json({
       success: false,
-      message: "No fue posible modificar la familia.",
+      message:
+        error instanceof Error
+          ? error.message
+          : "No fue posible modificar la familia.",
     });
   }
 });
@@ -138,7 +147,10 @@ router.delete("/:id", async (req, res) => {
 
     return res.status(500).json({
       success: false,
-      message: "No fue posible eliminar la familia.",
+      message:
+        error instanceof Error
+          ? error.message
+          : "No fue posible eliminar la familia.",
     });
   }
 });
