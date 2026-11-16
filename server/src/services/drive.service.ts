@@ -55,6 +55,9 @@ const descargarSemillaDesdeDrive = async (): Promise<FamiliaRecord[]> => {
 // =========================================
 // 1. CONSULTAR FAMILIAS DESDE SUPABASE
 // =========================================
+// =========================================
+// 1. CONSULTAR FAMILIAS DESDE SUPABASE
+// =========================================
 export const obtenerFamiliasDrive = async (
   usuarioId: string = DEFAULT_USUARIO_ID,
 ): Promise<FamiliaRecord[]> => {
@@ -68,18 +71,7 @@ export const obtenerFamiliasDrive = async (
     throw new Error(`Error Supabase GET (${response.status}): ${detalle}`);
   }
 
-  const filas = (await response.json()) as FamiliaRecord[];
-
-  // Si la tabla está vacía la primera vez, importa tus familias de Google Drive
-  if (filas.length === 0 && usuarioId === DEFAULT_USUARIO_ID) {
-    const iniciales = await descargarSemillaDesdeDrive();
-    if (iniciales.length > 0) {
-      await guardarFamiliasDrive(iniciales, usuarioId);
-      return obtenerFamiliasDrive(usuarioId);
-    }
-  }
-
-  return filas;
+  return (await response.json()) as FamiliaRecord[];
 };
 
 // =========================================
