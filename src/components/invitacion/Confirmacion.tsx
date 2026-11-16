@@ -1,14 +1,17 @@
 import React, { useEffect, useRef, useState } from "react";
 import { MessageCircle, CheckCircle2, XCircle, Users } from "lucide-react";
 import { invitacionConfig } from "../../config/invitacion.config";
+import { actualizarFamilia } from "../../services/familias.service";
 
 interface ConfirmacionProps {
+    familiaId?: string;
     nombreFamilia?: string;
     adultos?: number;
     ninos?: number;
 }
 
 export const Confirmacion: React.FC<ConfirmacionProps> = ({
+    familiaId,
     nombreFamilia = "Invitado Especial",
     adultos = 1,
     ninos = 0,
@@ -19,6 +22,7 @@ export const Confirmacion: React.FC<ConfirmacionProps> = ({
 
     const [asistencia, setAsistencia] = useState<"si" | "no">("si");
     const [mensajePersonal, setMensajePersonal] = useState("");
+    const [confirmando, setConfirmando] = useState(false);
 
     const esReservado = personalizacion?.tieneReservacion ?? false;
 
@@ -49,7 +53,30 @@ export const Confirmacion: React.FC<ConfirmacionProps> = ({
         return null;
     }
 
-    const enviarWhatsApp = () => {
+    const enviarWhatsApp = async () => {
+        if (confirmando) return;
+
+        const params = new URLSearchParams(window.location.search);
+        const idFamiliaActual = familiaId || params.get("familia") || "";
+
+        if (idFamiliaActual) {
+            try {
+                setConfirmando(true);
+                const nuevoEstado = asistencia === "si" ? "confirmada" : "cancelada";
+
+                await actualizarFamilia(idFamiliaActual, {
+                    estado: nuevoEstado,
+                    ...(mensajePersonal.trim()
+                        ? { mensajeFamilia: mensajePersonal.trim() }
+                        : {}),
+                });
+            } catch (error) {
+                console.error("No se pudo actualizar el estado en BD:", error);
+            } finally {
+                setConfirmando(false);
+            }
+        }
+
         const telefonoLimpio = (contacto.whatsapp || "").replace(/\D/g, "");
 
         const pasesTexto =
@@ -76,7 +103,6 @@ export const Confirmacion: React.FC<ConfirmacionProps> = ({
 
         window.open(urlWhatsApp, "_blank", "noopener,noreferrer");
     };
-
     return (
         <section
             ref={seccionRef}
@@ -138,7 +164,7 @@ export const Confirmacion: React.FC<ConfirmacionProps> = ({
                     animation: rsvpPulsoWa 2.8s ease-in-out infinite;
                     transition: transform 0.25s ease, filter 0.25s ease;
                 }
-                .rsvp-btn-wa:hover {
+                .rsvp-btn-wa:hover:not(:disabled) {
                     transform: scale(1.05);
                     filter: brightness(1.05);
                 }
@@ -156,7 +182,6 @@ export const Confirmacion: React.FC<ConfirmacionProps> = ({
                                     0 0 0 8px rgba(212, 175, 55, 0);
                     }
                 }
-
 
                 @keyframes rsvpIconoWa {
                     0%, 100% { transform: rotate(0deg); }
@@ -345,7 +370,8 @@ export const Confirmacion: React.FC<ConfirmacionProps> = ({
 
                     <button
                         type="button"
-                        onClick={enviarWhatsApp}
+                        onClick={() => void enviarWhatsApp()}
+                        disabled={confirmando}
                         className="rsvp-btn-wa"
                         style={{
                             display: "inline-flex",
@@ -359,11 +385,16 @@ export const Confirmacion: React.FC<ConfirmacionProps> = ({
                             borderRadius: "9999px",
                             fontSize: "0.95rem",
                             fontWeight: 700,
-                            cursor: "pointer",
+                            cursor: confirmando ? "wait" : "pointer",
+                            opacity: confirmando ? 0.75 : 1,
                         }}
                     >
                         <MessageCircle size={19} />
-                        <span>Enviar confirmación por WhatsApp</span>
+                        <span>
+                            {confirmando
+                                ? "Registrando respuesta..."
+                                : "Enviar confirmación por WhatsApp"}
+                        </span>
                     </button>
 
                     {contacto.fechaLimiteConfirmacion && (
