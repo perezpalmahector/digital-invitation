@@ -1,6 +1,6 @@
+import { getStore } from "@netlify/blobs";
 import { readFile, writeFile, mkdir } from "node:fs/promises";
 import path from "node:path";
-import os from "node:os";
 import { googleDriveConfig } from "../config/google-drive.config";
 
 export interface FamiliaRecord {
@@ -15,81 +15,85 @@ export interface FamiliaRecord {
   [key: string]: unknown;
 }
 
-const TMP_FILE = path.join(os.tmpdir(), "familias.json");
-const BUNDLED_FILE = path.join(process.cwd(), "data", "familias.json");
+const STORE_NAME = "invitacion-digital";
+const BLOB_KEY = "familias-data";
+const LOCAL_FILE = path.join(process.cwd(), "data", "familias.json");
 
-// En AWS Lambda / Netlify Functions siempre usa /tmp para escribir
-const ES_PRODUCCION = Boolean(
-  process.env.AWS_LAMBDA_FUNCTION_NAME ||
-  process.env.NETLIFY ||
-  process.env.LAMBDA_TASK_ROOT,
-);
-
-const ACTIVE_FILE = ES_PRODUCCION ? TMP_FILE : BUNDLED_FILE;
-
-export const obtenerFamiliasDrive = async (): Promise<FamiliaRecord[]> => {
-  // 1. Lee el archivo activo (/tmp/familias.json en producción o data/familias.json en local)
-  try {
-    const contenido = await readFile(ACTIVE_FILE, "utf-8");
-    const parsed = JSON.parse(contenido);
-    if (Array.isArray(parsed)) {
-      return parsed as FamiliaRecord[];
+const extraerLista = (datos: unknown): FamiliaRecord[] => {
+  if (Array.isArray(datos)) return datos as FamiliaRecord[];
+  if (datos && typeof datos === "object") {
+    if ("data" in datos && Array.isArray((datos as { data: unknown }).data)) {
+      return (datos as { data: FamiliaRecord[] }).data;
     }
-  } catch {
-    // Si aún no existe en /tmp, continúa al paso 2
-  }
-
-  // 2. Lee el archivo base empaquetado en el deploy (data/familias.json)
-  try {
-    const baseData = await readFile(BUNDLED_FILE, "utf-8");
-    const parsed = JSON.parse(baseData);
-    if (Array.isArray(parsed)) {
-      await guardarFamiliasDrive(parsed as FamiliaRecord[]);
-      return parsed as FamiliaRecord[];
+    if (
+      "familias" in datos &&
+      Array.isArray((datos as { familias: unknown }).familias)
+    ) {
+      return (datos as { familias: FamiliaRecord[] }).familias;
     }
-  } catch {
-    // Continúa a Drive si no está empaquetado
   }
+  return [];
+};
 
-  // 3. Respaldo desde Google Drive
+const descargarSemillaDesdeDrive = async (): Promise<FamiliaRecord[]> => {
   const response = await fetch(googleDriveConfig.downloadUrl, {
     headers: { "User-Agent": "Mozilla/5.0" },
   });
 
   if (!response.ok) {
-    throw new Error(`Error Google Drive: ${response.status}`);
+    return [];
   }
 
   const datos: unknown = await response.json();
-  const listaInicial = Array.isArray(datos)
-    ? datos
-    : datos &&
-        typeof datos === "object" &&
-        "data" in datos &&
-        Array.isArray((datos as { data: unknown }).data)
-      ? (datos as { data: FamiliaRecord[] }).data
-      : datos &&
-          typeof datos === "object" &&
-          "familias" in datos &&
-          Array.isArray((datos as { familias: unknown }).familias)
-        ? (datos as { familias: FamiliaRecord[] }).familias
-        : [];
-
-  await guardarFamiliasDrive(listaInicial as FamiliaRecord[]);
-  return listaInicial as FamiliaRecord[];
+  return extraerLista(datos);
 };
 
+// =========================================
+// LEER FAMILIAS (Netlify Blobs en producción / JSON en local)
+// =========================================
+export const obtenerFamiliasDrive = async (): Promise<FamiliaRecord[]> => {
+  // En producción (Netlify) usa Netlify Blobs
+  if (process.env.NETLIFY || process.env.AWS_LAMBDA_FUNCTION_NAME) {
+    const store = getStore(STORE_NAME);
+    const guardadas = await store.get(BLOB_KEY, { type: "json" });
+
+    if (Array.isArray(guardadas)) {
+      return guardadas as FamiliaRecord[];
+    }
+
+    // Si es la primera vez y el almacén está vacío, carga los datos iniciales de Drive
+    const iniciales = await descargarSemillaDesdeDrive();
+    if (iniciales.length > 0) {
+      await store.setJSON(BLOB_KEY, iniciales);
+    }
+    return iniciales;
+  }
+
+  // En desarrollo local sigue usando data/familias.json
+  try {
+    const contenido = await readFile(LOCAL_FILE, "utf-8");
+    return extraerLista(JSON.parse(contenido));
+  } catch {
+    const iniciales = await descargarSemillaDesdeDrive();
+    await guardarFamiliasDrive(iniciales);
+    return iniciales;
+  }
+};
+
+// =========================================
+// GUARDAR FAMILIAS DE FORMA PERMANENTE
+// =========================================
 export const guardarFamiliasDrive = async (
   familias: FamiliaRecord[],
 ): Promise<void> => {
-  const jsonTexto = JSON.stringify(familias, null, 2);
-
-  try {
-    await mkdir(path.dirname(ACTIVE_FILE), { recursive: true });
-    await writeFile(ACTIVE_FILE, jsonTexto, "utf-8");
-  } catch {
-    // Si el sistema de archivos es de solo lectura, guarda en /tmp sin fallar
-    await mkdir(os.tmpdir(), { recursive: true });
-    await writeFile(TMP_FILE, jsonTexto, "utf-8");
+  // En producción (Netlify) guarda de forma permanente en Netlify Blobs
+  if (process.env.NETLIFY || process.env.AWS_LAMBDA_FUNCTION_NAME) {
+    const store = getStore(STORE_NAME);
+    await store.setJSON(BLOB_KEY, familias);
+    return;
   }
+
+  // En desarrollo local guarda en data/familias.json
+  await mkdir(path.dirname(LOCAL_FILE), { recursive: true });
+  await writeFile(LOCAL_FILE, JSON.stringify(familias, null, 2), "utf-8");
 };
