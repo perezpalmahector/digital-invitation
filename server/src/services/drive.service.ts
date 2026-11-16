@@ -19,6 +19,21 @@ const STORE_NAME = "invitacion-digital";
 const BLOB_KEY = "familias-data";
 const LOCAL_FILE = path.join(process.cwd(), "data", "familias.json");
 
+const obtenerAlmacenBlobs = () => {
+  const siteID = process.env.NETLIFY_SITE_ID;
+  const token = process.env.NETLIFY_AUTH_TOKEN;
+
+  if (siteID && token) {
+    return getStore({
+      name: STORE_NAME,
+      siteID,
+      token,
+    });
+  }
+
+  return getStore(STORE_NAME);
+};
+
 const extraerLista = (datos: unknown): FamiliaRecord[] => {
   if (Array.isArray(datos)) return datos as FamiliaRecord[];
   if (datos && typeof datos === "object") {
@@ -36,32 +51,34 @@ const extraerLista = (datos: unknown): FamiliaRecord[] => {
 };
 
 const descargarSemillaDesdeDrive = async (): Promise<FamiliaRecord[]> => {
-  const response = await fetch(googleDriveConfig.downloadUrl, {
-    headers: { "User-Agent": "Mozilla/5.0" },
-  });
+  try {
+    const response = await fetch(googleDriveConfig.downloadUrl, {
+      headers: { "User-Agent": "Mozilla/5.0" },
+    });
 
-  if (!response.ok) {
+    if (!response.ok) {
+      return [];
+    }
+
+    const datos: unknown = await response.json();
+    return extraerLista(datos);
+  } catch {
     return [];
   }
-
-  const datos: unknown = await response.json();
-  return extraerLista(datos);
 };
 
 // =========================================
-// LEER FAMILIAS (Netlify Blobs en producción / JSON en local)
+// LEER FAMILIAS
 // =========================================
 export const obtenerFamiliasDrive = async (): Promise<FamiliaRecord[]> => {
-  // En producción (Netlify) usa Netlify Blobs
   if (process.env.NETLIFY || process.env.AWS_LAMBDA_FUNCTION_NAME) {
-    const store = getStore(STORE_NAME);
+    const store = obtenerAlmacenBlobs();
     const guardadas = await store.get(BLOB_KEY, { type: "json" });
 
     if (Array.isArray(guardadas)) {
       return guardadas as FamiliaRecord[];
     }
 
-    // Si es la primera vez y el almacén está vacío, carga los datos iniciales de Drive
     const iniciales = await descargarSemillaDesdeDrive();
     if (iniciales.length > 0) {
       await store.setJSON(BLOB_KEY, iniciales);
@@ -69,7 +86,6 @@ export const obtenerFamiliasDrive = async (): Promise<FamiliaRecord[]> => {
     return iniciales;
   }
 
-  // En desarrollo local sigue usando data/familias.json
   try {
     const contenido = await readFile(LOCAL_FILE, "utf-8");
     return extraerLista(JSON.parse(contenido));
@@ -86,14 +102,12 @@ export const obtenerFamiliasDrive = async (): Promise<FamiliaRecord[]> => {
 export const guardarFamiliasDrive = async (
   familias: FamiliaRecord[],
 ): Promise<void> => {
-  // En producción (Netlify) guarda de forma permanente en Netlify Blobs
   if (process.env.NETLIFY || process.env.AWS_LAMBDA_FUNCTION_NAME) {
-    const store = getStore(STORE_NAME);
+    const store = obtenerAlmacenBlobs();
     await store.setJSON(BLOB_KEY, familias);
     return;
   }
 
-  // En desarrollo local guarda en data/familias.json
   await mkdir(path.dirname(LOCAL_FILE), { recursive: true });
   await writeFile(LOCAL_FILE, JSON.stringify(familias, null, 2), "utf-8");
 };
