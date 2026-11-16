@@ -102,13 +102,8 @@ export const Confirmacion: React.FC<ConfirmacionProps> = ({
         );
 
         const urlWhatsApp = telefonoLimpio
-            ? "https://whatsapp.com" + telefonoLimpio + "&text=" + mensajeCompleto
+            ? "https://whatsapp.com/" + telefonoLimpio + "&text=" + mensajeCompleto
             : "https://whatsapp.com" + mensajeCompleto;
-
-
-        // const urlWhatsApp = telefonoLimpio
-        //     ? "https://wa.me/" + telefonoLimpio + "?text=" + mensajeCompleto
-        //     : "https://wa.me?text=" + mensajeCompleto;
 
         window.open(urlWhatsApp, "_blank", "noopener,noreferrer");
     };
