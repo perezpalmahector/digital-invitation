@@ -58,12 +58,15 @@ const descargarSemillaDesdeDrive = async (): Promise<FamiliaRecord[]> => {
 // =========================================
 // 1. CONSULTAR FAMILIAS DESDE SUPABASE
 // =========================================
+// =========================================
+// 1. CONSULTAR FAMILIAS DESDE SUPABASE (ORDENADAS A-Z)
+// =========================================
 export const obtenerFamiliasDrive = async (
   usuarioId: string = DEFAULT_USUARIO_ID,
 ): Promise<FamiliaRecord[]> => {
   const { baseUrl, headers } = getSupabaseHeaders();
 
-  const query = `${baseUrl}?usuario_id=eq.${encodeURIComponent(usuarioId)}&order=actualizado_en.desc`;
+  const query = `${baseUrl}?usuario_id=eq.${encodeURIComponent(usuarioId)}&order=familia.asc`;
   const response = await fetch(query, { method: "GET", headers });
 
   if (!response.ok) {
