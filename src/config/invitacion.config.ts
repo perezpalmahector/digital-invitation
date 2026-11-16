@@ -164,8 +164,9 @@ export const invitacionConfig: InvitacionConfigConMensajes = {
       hora: "5:00 PM (17:00 hrs)",
       direccion:
         "Monumentos Coloniales 5, SAHOP Chacón, 42186 Mineral de la Reforma, Hgo.",
-      mapaUrl: "https://google.com",
-      sitioWeb: "https://netlify.app",
+      mapaUrl:
+        "https://www.google.com/maps/search/?api=1&query=Parroquia+de+Nuestra+Se%C3%B1ora+de+los+Angeles%2C+Monumentos+Coloniales+5%2C+Sahop+Chac%C3%B3n%2C+Mineral+de+la+Reforma%2C+Hidalgo",
+      sitioWeb: "https://parroquianuestrasenoradelosangelesmr.netlify.app/",
     },
     recepcion: {
       tipo: "recepcion",
@@ -174,7 +175,7 @@ export const invitacionConfig: InvitacionConfigConMensajes = {
       hora: "Al terminar la ceremonia",
       direccion:
         "Av. 24 de Febrero 9 A, El Saucillo, 42186 Mineral de la Reforma, Hgo.",
-      mapaUrl: "https://goo.gl",
+      mapaUrl: "https://maps.app.goo.gl/mLB5yithnJQjA2ccA?g_st=iw",
     },
   },
 
@@ -203,22 +204,23 @@ export const invitacionConfig: InvitacionConfigConMensajes = {
     },
     {
       hora: "7:30 PM",
+      titulo: "Cena",
+      descripcion:
+        "Degustación de banquete preparado especialmente para ustedes.",
+      icono: "cena",
+    },
+
+    {
+      hora: "8:30 PM",
       titulo: "Presentación y Vals",
       descripcion: "Entrada oficial de Mary, vals familiar y momento especial.",
       icono: "vals",
     },
     {
-      hora: "8:30 PM",
+      hora: "9:30 PM",
       titulo: "Brindis de Honor",
       descripcion: "Palabras de agradecimiento y brindis por esta nueva etapa.",
       icono: "brindis",
-    },
-    {
-      hora: "9:00 PM",
-      titulo: "Cena",
-      descripcion:
-        "Degustación de banquete preparado especialmente para ustedes.",
-      icono: "cena",
     },
     {
       hora: "10:00 PM",
