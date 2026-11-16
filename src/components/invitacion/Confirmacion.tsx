@@ -84,25 +84,31 @@ export const Confirmacion: React.FC<ConfirmacionProps> = ({
                 ? `${adultos} adulto(s) y ${ninos} niño(s)`
                 : `${adultos} adulto(s)`;
 
-        const destellos = String.fromCodePoint(0x2728);
-        const carta = String.fromCodePoint(0x1F48C);
+        const estrella = "\u2726";
+        const sobre = "\u2709";
 
         const textoConfirmacion =
             asistencia === "si"
-                ? `¡Hola1 ${general.nombre}! ${destellos} Somos *${nombreFamilia}* y confirmamos con mucha alegría nuestra asistencia a tus *${general.tipoEvento}* (${pasesTexto}).`
+                ? `¡Hola ${general.nombre}! ${estrella} Somos *${nombreFamilia}* y confirmamos con mucha alegría nuestra asistencia a tus *${general.tipoEvento}* (${pasesTexto}).`
                 : `Hola ${general.nombre}, somos *${nombreFamilia}*. Lamentablemente no podremos acompañarte en tus *${general.tipoEvento}*, pero te enviamos nuestros mejores deseos.`;
 
         const notaAdicional = mensajePersonal.trim()
-            ? `\n\n${carta} Mensaje para ti: "${mensajePersonal.trim()}"`
+            ? `\n\n${sobre} Mensaje para ti: "${mensajePersonal.trim()}"`
             : "";
+
 
         const mensajeCompleto = encodeURIComponent(
             `${textoConfirmacion}${notaAdicional}`
         );
 
         const urlWhatsApp = telefonoLimpio
-            ? "https://wa.me/" + telefonoLimpio + "?text=" + mensajeCompleto
-            : "https://wa.me?text=" + mensajeCompleto;
+            ? "https://whatsapp.com" + telefonoLimpio + "&text=" + mensajeCompleto
+            : "https://whatsapp.com" + mensajeCompleto;
+
+
+        // const urlWhatsApp = telefonoLimpio
+        //     ? "https://wa.me/" + telefonoLimpio + "?text=" + mensajeCompleto
+        //     : "https://wa.me?text=" + mensajeCompleto;
 
         window.open(urlWhatsApp, "_blank", "noopener,noreferrer");
     };
