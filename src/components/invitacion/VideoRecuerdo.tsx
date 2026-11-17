@@ -176,6 +176,8 @@ export const VideoRecuerdo: React.FC = () => {
             src={multimedia.video}
             poster={multimedia.portada}
             controls
+            controlsList="nodownload"
+            disablePictureInPicture
             playsInline
             preload="metadata"
             style={{
