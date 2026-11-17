@@ -48,6 +48,7 @@ export interface InvitacionConfigConMensajes extends InvitacionConfig {
   };
   itinerario?: ActividadItinerario[];
   codigoVestimenta?: {
+    mostrar: boolean;
     etiqueta: string;
     descripcion: string;
     mujeres: string;
@@ -231,6 +232,7 @@ export const invitacionConfig: InvitacionConfigConMensajes = {
   ],
 
   codigoVestimenta: {
+    mostrar: false,
     etiqueta: "Formal",
     descripcion:
       "Nos encantará verte lucir espectacular en esta noche tan especial.",

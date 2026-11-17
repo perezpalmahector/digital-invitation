@@ -30,7 +30,7 @@ export const CodigoVestimenta: React.FC = () => {
         return () => observer.disconnect();
     }, []);
 
-    if (!dressCode) return null;
+    if (!dressCode || dressCode.mostrar === false) return null;
 
     return (
         <section
